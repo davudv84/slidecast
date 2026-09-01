@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--shell:#FAFAFA;--surface:#FFFFFF;--border:#E5E7EB;--t1:#0A0A0A;--t2:#525252;--t3:#A3A3A3;--hover:#F4F4F5;--accent:#4F46E5;--accent-h:#4338CA;--accent-soft:rgba(79,70,229,.08);--shadow:0 8px 30px rgba(0,0,0,.08);--skel:#EEEEEF;--inv:#0A0A0A;--inv-t:#FFFFFF}
+[data-theme="dark"]{--shell:#0A0A0A;--surface:#171717;--border:#262626;--t1:#FAFAFA;--t2:#A3A3A3;--t3:#6B6B6B;--hover:#222222;--accent-soft:rgba(99,102,241,.16);--shadow:0 8px 30px rgba(0,0,0,.5);--skel:#222222;--inv:#FAFAFA;--inv-t:#0A0A0A}
+html,body{margin:0;padding:0;background:var(--shell);color:var(--t1);font-family:"Geist",ui-sans-serif,system-ui,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:var(--t1);text-decoration:none}a:hover{color:var(--accent)}
+button,input,textarea,select{font-family:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input::placeholder,textarea::placeholder{color:var(--t3)}
+@keyframes shimmer{0%{opacity:.55}50%{opacity:1}100%{opacity:.55}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:none}}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.skel{background:var(--skel);animation:shimmer 1.4s ease-in-out infinite;border-radius:6px}
+.spin{animation:spin .8s linear infinite}
+.fade{animation:fadeUp .2s ease-out}
+.pop{animation:popIn .2s ease-out}
+.drawer{animation:slideIn .2s ease-out}
+.toast{animation:toastIn .2s ease-out}
+[contenteditable]:focus{outline:2px dashed var(--accent);outline-offset:4px}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="{{ accentStyle }}"><div style="min-height:100vh;background:var(--shell);color:var(--t1);position:relative">
+
+<!-- ================= LANDING ================= -->
+<sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Landing" style="background:var(--surface);min-height:100vh">
+  <header style="position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border)">
+    <div style="max-width:1120px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+      <div style="display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;letter-spacing:-.01em"><span style="width:22px;height:22px;border-radius:6px;background:var(--accent);display:grid;place-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="5" width="12" height="14" rx="2"/><path d="M19 8v8"/></svg></span>Slidecast</div>
+      <nav style="display:flex;gap:24px;font-size:14px;color:var(--t2)"><sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}"><a href="#features" style="color:var(--t2)">Features</a><a href="#pricing" style="color:var(--t2)">Pricing</a><a href="#faq" style="color:var(--t2)">FAQ</a></sc-if></nav>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:36px;height:36px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t2);display:grid;place-items:center;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">{{ themeIcon }}</button>
+        <button onClick="{{ goSignIn }}" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:14px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Sign in</button>
+        <button onClick="{{ goSignUp }}" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--accent-h)">Start free</button>
+      </div>
+    </div>
+  </header>
+
+  <section style="max-width:1120px;margin:0 auto;padding:{{ heroPad }};display:grid;grid-template-columns:{{ heroCols }};gap:48px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--t2);border:1px solid var(--border);border-radius:999px;padding:5px 12px;width:fit-content"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent)"></span>Now exporting PDF carousels for LinkedIn</span>
+      <h1 style="margin:0;font-size:{{ h1Size }};line-height:1.05;letter-spacing:-.03em;font-weight:600;text-wrap:pretty">Turn one idea into an 8‑slide carousel in 40 seconds.</h1>
+      <p style="margin:0;font-size:17px;line-height:1.55;color:var(--t2);max-width:480px;text-wrap:pretty">Paste a tweet, a note, or 2,000 words. Slidecast writes the slides, applies your brand kit, and exports 1080×1350 PNGs ready for Instagram — no canvas wrangling.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button onClick="{{ goSignUp }}" style="height:44px;padding:0 20px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--accent-h)">Create your first carousel</button>
+        <button onClick="{{ openDemo }}" style="height:44px;padding:0 20px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:15px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Open the editor</button>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--t3)">Free plan: 5 carousels a month. No card required.</p>
+    </div>
+    <div style="position:relative;display:flex;flex-direction:column;gap:12px;align-items:center">
+      <div style="width:100%;max-width:420px;aspect-ratio:1080/1350;border-radius:10px;border:1px solid var(--border);overflow:hidden;position:relative;background:var(--shell)">
+        <div style="display:flex;height:100%;width:{{ heroStripW }};transform:translateX({{ heroTx }});transition:transform .5s cubic-bezier(.2,.8,.2,1)">
+          <sc-for list="{{ heroSlides }}" as="s" hint-placeholder-count="5">
+            <div style="flex:none;width:{{ heroSlideW }};height:100%;background:{{ s.bg }};color:{{ s.fg }};padding:9% 9% 8%;display:flex;flex-direction:column;justify-content:{{ s.justify }};font-family:{{ s.font }}">
+              <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:auto">{{ s.kicker }}</div>
+              <div style="font-size:{{ s.hs }};line-height:1.05;letter-spacing:-.03em;font-weight:{{ s.hw }};text-wrap:pretty">{{ s.headline }}</div>
+              <div style="font-size:14px;line-height:1.45;opacity:.78;margin-top:14px;text-wrap:pretty">{{ s.body }}</div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;opacity:.6;margin-top:auto"><span>@marisol.writes</span><span>{{ s.n }} / 5</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <sc-for list="{{ heroSlides }}" as="s" hint-placeholder-count="5"><span style="width:{{ s.dotW }};height:6px;border-radius:3px;background:{{ s.dotBg }};transition:all .3s ease-out"></span></sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" style="border-top:1px solid var(--border);background:var(--shell)">
+    <div style="max-width:1120px;margin:0 auto;padding:{{ sectionPad }};display:flex;flex-direction:column;gap:80px">
+      <div style="display:grid;grid-template-columns:{{ featCols }};gap:48px;align-items:center">
+        <div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;color:var(--accent);font-weight:500">Generate</span><h2 style="margin:0;font-size:32px;letter-spacing:-.02em;line-height:1.15;font-weight:600">From a 280‑character tweet to 8 slides, drafted while you watch.</h2><p style="margin:0;color:var(--t2);line-height:1.55;text-wrap:pretty">Pick a tone, set a slide count between 5 and 10, and hit Generate. Slides stream in one at a time — hook, three to seven points, and a CTA slide with your handle.</p></div>
+        <div style="border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div style="font-weight:500;font-size:14px">New carousel</div>
+          <div style="border:1px solid var(--border);border-radius:6px;padding:12px;font-size:14px;line-height:1.5;color:var(--t1);background:var(--surface)">Most creators post 3× a week and wonder why nothing sticks. The ones who win post one carousel every day for 90 days. Here's the system I used to go from 800 to 41k followers.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span style="font-size:13px;padding:6px 10px;border-radius:6px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent)">Direct</span><span style="font-size:13px;padding:6px 10px;border-radius:6px;border:1px solid var(--border);color:var(--t2)">Story</span><span style="font-size:13px;padding:6px 10px;border-radius:6px;border:1px solid var(--border);color:var(--t2)">Educational</span><span style="font-size:13px;padding:6px 10px;border-radius:6px;border:1px solid var(--border);color:var(--t2)">Contrarian</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--t2)"><span>8 slides</span><span style="flex:1;margin:0 12px;height:4px;border-radius:2px;background:var(--border);position:relative"><span style="position:absolute;left:0;top:0;height:100%;width:60%;background:var(--accent);border-radius:2px"></span><span style="position:absolute;left:60%;top:-4px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);transform:translateX(-50%)"></span></span><span>10</span></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+            <sc-for list="{{ landingGen }}" as="g" hint-placeholder-count="4"><div style="aspect-ratio:4/5;border-radius:6px;border:1px solid var(--border);background:{{ g.bg }};color:{{ g.fg }};padding:8px;font-size:9px;line-height:1.2;font-weight:600;letter-spacing:-.02em;opacity:{{ g.op }};display:flex;align-items:flex-end">{{ g.t }}</div></sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:{{ featCols }};gap:48px;align-items:center">
+        <div style="order:{{ featSwapA }};border:1px solid var(--border);border-radius:10px;background:var(--surface);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px"><span style="font-weight:500">90‑day carousel system</span><span style="color:var(--t3)">Saved</span></div>
+          <div style="display:grid;grid-template-columns:56px 1fr 180px;height:260px">
+            <div style="border-right:1px solid var(--border);padding:8px;display:flex;flex-direction:column;gap:6px"><span style="aspect-ratio:4/5;border-radius:4px;border:2px solid var(--accent);background:#0A0A0A"></span><span style="aspect-ratio:4/5;border-radius:4px;border:1px solid var(--border);background:var(--shell)"></span><span style="aspect-ratio:4/5;border-radius:4px;border:1px solid var(--border);background:var(--shell)"></span></div>
+            <div style="display:grid;place-items:center;background:var(--shell)"><div style="width:140px;aspect-ratio:4/5;background:#0A0A0A;color:#fff;border-radius:4px;padding:14px;font-size:13px;font-weight:600;letter-spacing:-.03em;line-height:1.1;display:flex;align-items:flex-end">Post one carousel a day. Not three a week.</div></div>
+            <div style="border-left:1px solid var(--border);padding:12px;display:flex;flex-direction:column;gap:10px;font-size:12px"><div style="display:flex;gap:4px;border-bottom:1px solid var(--border);padding-bottom:8px"><span style="font-weight:500;border-bottom:2px solid var(--accent);padding-bottom:6px;margin-bottom:-9px">Content</span><span style="color:var(--t3);padding:0 8px">Style</span><span style="color:var(--t3)">Brand</span></div><div style="color:var(--t3)">Headline</div><div style="border:1px solid var(--border);border-radius:6px;padding:6px 8px">Post one carousel a day.</div><div style="color:var(--t3)">Slide type</div><div style="border:1px solid var(--border);border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between">Hook<span style="color:var(--t3)">▾</span></div></div>
+          </div>
+        </div>
+        <div style="order:{{ featSwapB }};display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;color:var(--accent);font-weight:500">Edit</span><h2 style="margin:0;font-size:32px;letter-spacing:-.02em;line-height:1.15;font-weight:600">An editor with three tabs, not three hundred menus.</h2><p style="margin:0;color:var(--t2);line-height:1.55;text-wrap:pretty">Double‑click any text on the canvas to rewrite it. Drag slides to reorder. Switch between 24 templates without losing a word. Arrow keys move between slides; ⌘S saves — though it already did.</p></div>
+      </div>
+      <div style="display:grid;grid-template-columns:{{ featCols }};gap:48px;align-items:center">
+        <div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:13px;color:var(--accent);font-weight:500">Export</span><h2 style="margin:0;font-size:32px;letter-spacing:-.02em;line-height:1.15;font-weight:600">PNG at 1080×1350, PDF for LinkedIn, or straight to Buffer.</h2><p style="margin:0;color:var(--t2);line-height:1.55;text-wrap:pretty">One click downloads a .zip with every slide numbered. Story size (1080×1920) reflows text automatically. Agencies schedule to client accounts without leaving the editor.</p></div>
+        <div style="border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:14px;font-size:13px">
+          <div style="font-weight:500;font-size:14px">Export</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="border:1px solid var(--accent);background:var(--accent-soft);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:2px"><span style="font-weight:500">PNG</span><span style="color:var(--t2)">8 files · 1080×1350</span></div><div style="border:1px solid var(--border);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:2px"><span style="font-weight:500">PDF</span><span style="color:var(--t2)">1 file · LinkedIn ready</span></div></div>
+          <div style="display:flex;gap:8px"><span style="flex:1;border:1px solid var(--accent);background:var(--accent-soft);border-radius:6px;padding:8px;text-align:center">Post 4:5</span><span style="flex:1;border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center;color:var(--t2)">Story 9:16</span></div>
+          <div style="height:40px;border-radius:6px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:500;font-size:14px">Download all as .zip · 3.2 MB</div>
+          <div style="height:40px;border-radius:6px;border:1px solid var(--border);display:grid;place-items:center;font-weight:500;font-size:14px">Schedule via Buffer</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" style="border-top:1px solid var(--border)">
+    <div style="max-width:1120px;margin:0 auto;padding:{{ sectionPad }};display:flex;flex-direction:column;gap:40px">
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:520px"><h2 style="margin:0;font-size:32px;letter-spacing:-.02em;line-height:1.15;font-weight:600">Pricing</h2><p style="margin:0;color:var(--t2);line-height:1.55">Billed monthly. Cancel any time. Prices in EUR, VAT added at checkout.</p></div>
+      <div style="display:grid;grid-template-columns:{{ priceCols }};gap:16px">
+        <sc-for list="{{ plans }}" as="p" hint-placeholder-count="3">
+          <div style="border:1px solid {{ p.border }};border-radius:10px;padding:24px;background:var(--surface);display:flex;flex-direction:column;gap:20px;position:relative">
+            <sc-if value="{{ p.popular }}"><span style="position:absolute;top:-11px;left:24px;font-size:12px;font-weight:500;background:var(--accent);color:#fff;border-radius:999px;padding:3px 10px">Most popular</span></sc-if>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-weight:500">{{ p.name }}</span><span style="display:flex;align-items:baseline;gap:4px"><span style="font-size:32px;letter-spacing:-.02em;font-weight:600">{{ p.price }}</span><span style="color:var(--t3);font-size:13px">{{ p.per }}</span></span><span style="color:var(--t2);font-size:13px">{{ p.desc }}</span></div>
+            <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--t1)"><sc-for list="{{ p.features }}" as="f" hint-placeholder-count="4"><li style="display:flex;gap:10px;align-items:flex-start"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;color:var(--t2)"><path d="M20 6 9 17l-5-5"/></svg><span>{{ f }}</span></li></sc-for></ul>
+            <button onClick="{{ goSignUp }}" style="margin-top:auto;height:40px;border-radius:6px;border:1px solid {{ p.btnBorder }};background:{{ p.btnBg }};color:{{ p.btnFg }};font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s ease-out" style-hover="opacity:.88">{{ p.cta }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" style="border-top:1px solid var(--border);background:var(--shell)">
+    <div style="max-width:1120px;margin:0 auto;padding:{{ sectionPad }};display:grid;grid-template-columns:{{ faqCols }};gap:48px">
+      <h2 style="margin:0;font-size:32px;letter-spacing:-.02em;line-height:1.15;font-weight:600">Questions</h2>
+      <div style="display:flex;flex-direction:column">
+        <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="5">
+          <div style="border-bottom:1px solid var(--border)">
+            <button onClick="{{ q.toggle }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;background:none;border:0;cursor:pointer;text-align:left;font-size:15px;font-weight:500;color:var(--t1);transition:color .15s ease-out" style-hover="color:var(--accent)"><span>{{ q.q }}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none;transform:rotate({{ q.rot }});transition:transform .2s ease-out;color:var(--t3)"><path d="m6 9 6 6 6-6"/></svg></button>
+            <sc-if value="{{ q.open }}"><p class="fade" style="margin:0;padding:0 0 18px;color:var(--t2);line-height:1.55;max-width:560px">{{ q.a }}</p></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <footer style="border-top:1px solid var(--border)">
+    <div style="max-width:1120px;margin:0 auto;padding:40px 24px;display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:center;font-size:13px;color:var(--t3)">
+      <div style="display:flex;align-items:center;gap:10px;color:var(--t1);font-weight:600"><span style="width:18px;height:18px;border-radius:5px;background:var(--accent)"></span>Slidecast<span style="color:var(--t3);font-weight:400;margin-left:8px">© 2026 Slidecast GmbH, Berlin</span></div>
+      <div style="display:flex;gap:20px"><a href="#features" style="color:var(--t3)">Features</a><a href="#pricing" style="color:var(--t3)">Pricing</a><a href="#faq" style="color:var(--t3)">FAQ</a><a href="#" style="color:var(--t3)">Privacy</a><a href="#" style="color:var(--t3)">Imprint</a></div>
+    </div>
+  </footer>
+</div>
+</sc-if>
+
+<!-- ================= AUTH ================= -->
+<sc-if value="{{ isAuth }}">
+<div data-screen-label="Auth" style="min-height:100vh;display:grid;grid-template-columns:{{ authCols }}">
+  <div style="display:flex;flex-direction:column;padding:32px;min-height:100vh">
+    <button onClick="{{ goLanding }}" style="display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;background:none;border:0;padding:0;cursor:pointer;color:var(--t1);width:fit-content"><span style="width:22px;height:22px;border-radius:6px;background:var(--accent)"></span>Slidecast</button>
+    <div style="margin:auto;width:100%;max-width:360px;display:flex;flex-direction:column;gap:24px" class="fade">
+      <div style="display:flex;flex-direction:column;gap:6px"><h1 style="margin:0;font-size:24px;letter-spacing:-.02em;font-weight:600">{{ authTitle }}</h1><p style="margin:0;color:var(--t2)">{{ authSub }}</p></div>
+      <button onClick="{{ signIn }}" style="height:40px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .15s ease-out" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.4z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z"/><path fill="#FBBC05" d="M6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.4H3.1A10 10 0 0 0 2 12c0 1.6.4 3.1 1.1 4.6L6.4 14z"/><path fill="#EA4335" d="M12 6c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 0 0 3.1 7.4L6.4 10c.8-2.3 3-4 5.6-4z"/></svg>Continue with Google</button>
+      <div style="display:flex;align-items:center;gap:12px;color:var(--t3);font-size:13px"><span style="flex:1;height:1px;background:var(--border)"></span>or<span style="flex:1;height:1px;background:var(--border)"></span></div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Email<input value="{{ authEmail }}" onChange="{{ setAuthEmail }}" type="email" placeholder="you@studio.com" style="height:40px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:16px;background:var(--surface);color:var(--t1);transition:border-color .15s ease-out" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></label>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Password<input value="{{ authPw }}" onChange="{{ setAuthPw }}" type="password" placeholder="8+ characters" style="height:40px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:16px;background:var(--surface);color:var(--t1);transition:border-color .15s ease-out" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></label>
+        <sc-if value="{{ authError }}"><p class="fade" style="margin:0;font-size:13px;color:#DC2626">{{ authError }}</p></sc-if>
+        <button onClick="{{ signIn }}" disabled="{{ authBusy }}" style="height:40px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s ease-out;opacity:{{ authBtnOp }}" style-hover="background:var(--accent-h)">{{ authBtnContent }}</button>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--t2);text-align:center">{{ authSwitchText }} <button onClick="{{ switchAuth }}" style="background:none;border:0;padding:0;color:var(--accent);font-weight:500;cursor:pointer;font-size:13px">{{ authSwitchCta }}</button></p>
+    </div>
+    <p style="margin:0;font-size:12px;color:var(--t3)">By continuing you agree to the Terms and Privacy Policy.</p>
+  </div>
+  <sc-if value="{{ wide }}">
+  <div style="background:var(--inv);display:grid;place-items:center;padding:48px;position:relative;overflow:hidden">
+    <div style="display:flex;gap:16px;transform:rotate(-6deg) scale(1.05)">
+      <sc-for list="{{ authSlides }}" as="s" hint-placeholder-count="3"><div style="width:220px;aspect-ratio:1080/1350;background:{{ s.bg }};color:{{ s.fg }};border-radius:8px;padding:22px;display:flex;flex-direction:column;justify-content:flex-end;font-size:20px;font-weight:600;letter-spacing:-.03em;line-height:1.1;font-family:{{ s.font }};text-wrap:pretty;margin-top:{{ s.mt }}">{{ s.headline }}</div></sc-for>
+    </div>
+    <p style="position:absolute;bottom:32px;left:48px;right:48px;margin:0;color:var(--inv-t);opacity:.7;font-size:14px;line-height:1.5;max-width:420px">"I ghostwrite for six founders. Slidecast cut my Tuesday carousel batch from four hours to fifty minutes." — Marisol Reyes, Reyes Studio</p>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ================= APP SHELL (dashboard / templates / settings) ================= -->
+<sc-if value="{{ isShell }}">
+<div style="display:grid;grid-template-columns:{{ shellCols }};min-height:100vh">
+  <sc-if value="{{ wide }}">
+  <aside style="border-right:1px solid var(--border);background:var(--surface);padding:16px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh">
+    <button onClick="{{ goLanding }}" style="display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;background:none;border:0;padding:6px 8px 18px;cursor:pointer;color:var(--t1);width:fit-content"><span style="width:22px;height:22px;border-radius:6px;background:var(--accent)"></span>Slidecast</button>
+    <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="3">
+      <button onClick="{{ n.go }}" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:6px;border:0;background:{{ n.bg }};color:{{ n.fg }};font-size:14px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s ease-out" style-hover="background:var(--hover)">{{ n.icon }}{{ n.label }}</button>
+    </sc-for>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+      <div style="border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:13px"><div style="display:flex;justify-content:space-between"><span style="color:var(--t2)">Pro · this month</span><span style="font-weight:500">43 / 100</span></div><div style="height:4px;border-radius:2px;background:var(--border)"><div style="width:43%;height:100%;background:var(--accent);border-radius:2px"></div></div></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 8px"><span style="width:28px;height:28px;border-radius:50%;background:var(--inv);color:var(--inv-t);display:grid;place-items:center;font-size:12px;font-weight:600">MR</span><div style="display:flex;flex-direction:column;line-height:1.2;flex:1;min-width:0"><span style="font-size:13px;font-weight:500">Marisol Reyes</span><span style="font-size:12px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">marisol@reyes.studio</span></div><button onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:28px;height:28px;border-radius:6px;border:0;background:none;color:var(--t2);display:grid;place-items:center;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">{{ themeIcon }}</button></div>
+    </div>
+  </aside>
+  </sc-if>
+  <main style="min-width:0;display:flex;flex-direction:column">
+    <sc-if value="{{ narrow }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface)"><span style="font-weight:600">Slidecast</span><div style="display:flex;gap:4px"><sc-for list="{{ navItems }}" as="n" hint-placeholder-count="3"><button onClick="{{ n.go }}" style="height:32px;padding:0 10px;border-radius:6px;border:0;background:{{ n.bg }};color:{{ n.fg }};font-size:13px;font-weight:500;cursor:pointer">{{ n.label }}</button></sc-for></div></div>
+    </sc-if>
+
+    <!-- DASHBOARD -->
+    <sc-if value="{{ isDashboard }}">
+    <div data-screen-label="Dashboard" class="fade" style="display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:5">
+        <h1 style="margin:0;font-size:20px;letter-spacing:-.02em;font-weight:600;margin-right:auto">Carousels</h1>
+        <div style="position:relative;width:{{ searchW }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="position:absolute;left:10px;top:10px;color:var(--t3)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input value="{{ query }}" onChange="{{ setQuery }}" placeholder="Search carousels… ⌘K" style="width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 12px 0 32px;font-size:14px;background:var(--surface);color:var(--t1);transition:border-color .15s ease-out" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></div>
+        <button onClick="{{ newCarousel }}" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s ease-out;white-space:nowrap" style-hover="background:var(--accent-h)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New carousel</button>
+      </div>
+      <div style="padding:24px">
+        <sc-if value="{{ loadingDash }}">
+          <div style="display:grid;grid-template-columns:{{ gridCols }};gap:16px"><sc-for list="{{ skel8 }}" as="k" hint-placeholder-count="8"><div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)"><div class="skel" style="aspect-ratio:4/5;border-radius:0"></div><div style="padding:14px;display:flex;flex-direction:column;gap:8px"><div class="skel" style="height:14px;width:70%"></div><div class="skel" style="height:12px;width:45%"></div></div></div></sc-for></div>
+        </sc-if>
+        <sc-if value="{{ showProjects }}">
+          <div style="display:grid;grid-template-columns:{{ gridCols }};gap:16px">
+            <sc-for list="{{ filteredProjects }}" as="p" hint-placeholder-count="8">
+              <div onClick="{{ p.open }}" tabindex="0" onKeyDown="{{ p.key }}" style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);cursor:pointer;transition:border-color .15s ease-out;position:relative;display:flex;flex-direction:column" style-hover="border-color:var(--t3)">
+                <div style="aspect-ratio:4/5;background:{{ p.bg }};color:{{ p.fg }};padding:14%;display:flex;align-items:flex-end;font-family:{{ p.font }};font-size:15px;font-weight:600;letter-spacing:-.03em;line-height:1.1;text-wrap:pretty;overflow:hidden">{{ p.headline }}</div>
+                <div style="padding:14px;display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border)">
+                  <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span style="font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.title }}</span><span style="font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:{{ p.statusFg }};background:{{ p.statusBg }};white-space:nowrap">{{ p.status }}</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--t3)"><span>{{ p.count }} slides</span><span>{{ p.edited }}</span></div>
+                </div>
+                <button onClick="{{ p.del }}" aria-label="Delete" style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t2);display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .15s ease-out" style-hover="opacity:1;color:#DC2626"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showEmpty }}">
+          <div class="fade" style="border:1px dashed var(--border);border-radius:10px;padding:64px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--t3)"><rect x="3" y="5" width="12" height="14" rx="2"/><path d="M19 8v8"/></svg>
+            <p style="margin:0;color:var(--t2)">{{ emptyText }}</p>
+            <button onClick="{{ emptyAction }}" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--accent-h)">{{ emptyCta }}</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- TEMPLATES -->
+    <sc-if value="{{ isTemplates }}">
+    <div data-screen-label="Templates" class="fade">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:5;flex-wrap:wrap">
+        <h1 style="margin:0;font-size:20px;letter-spacing:-.02em;font-weight:600;margin-right:auto">Templates</h1>
+        <div style="display:flex;gap:4px;border:1px solid var(--border);border-radius:6px;padding:3px;background:var(--shell)">
+          <sc-for list="{{ tplFilters }}" as="f" hint-placeholder-count="5"><button onClick="{{ f.set }}" style="height:28px;padding:0 10px;border-radius:4px;border:0;background:{{ f.bg }};color:{{ f.fg }};font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out">{{ f.label }}</button></sc-for>
+        </div>
+      </div>
+      <div style="padding:24px">
+        <sc-if value="{{ loadingTpl }}"><div style="display:grid;grid-template-columns:{{ gridCols }};gap:16px"><sc-for list="{{ skel8 }}" as="k" hint-placeholder-count="8"><div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)"><div class="skel" style="aspect-ratio:4/5;border-radius:0"></div><div style="padding:14px;display:flex;gap:8px;justify-content:space-between"><div class="skel" style="height:14px;width:50%"></div><div class="skel" style="height:14px;width:20%"></div></div></div></sc-for></div></sc-if>
+        <sc-if value="{{ showTpl }}">
+        <div style="display:grid;grid-template-columns:{{ gridCols }};gap:16px">
+          <sc-for list="{{ filteredTemplates }}" as="t" hint-placeholder-count="8">
+            <div onMouseEnter="{{ t.enter }}" onMouseLeave="{{ t.leave }}" onClick="{{ t.use }}" tabindex="0" style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);cursor:pointer;transition:border-color .15s ease-out;display:flex;flex-direction:column" style-hover="border-color:var(--t3)">
+              <div style="aspect-ratio:4/5;background:{{ t.bg }};color:{{ t.fg }};padding:14%;display:flex;flex-direction:column;justify-content:{{ t.justify }};font-family:{{ t.font }};position:relative;overflow:hidden">
+                <div key="{{ t.frameKey }}" class="fade" style="font-size:{{ t.hs }};font-weight:{{ t.hw }};letter-spacing:-.03em;line-height:1.1;text-wrap:pretty">{{ t.previewText }}</div>
+                <div style="position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:4px"><span style="width:12px;height:3px;border-radius:2px;background:currentColor;opacity:{{ t.d1 }}"></span><span style="width:12px;height:3px;border-radius:2px;background:currentColor;opacity:{{ t.d2 }}"></span><span style="width:12px;height:3px;border-radius:2px;background:currentColor;opacity:{{ t.d3 }}"></span></div>
+              </div>
+              <div style="padding:14px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border)"><span style="font-weight:500">{{ t.name }}</span><span style="font-size:12px;color:var(--t3)">{{ t.style }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- SETTINGS -->
+    <sc-if value="{{ isSettings }}">
+    <div data-screen-label="Settings" class="fade">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:5"><h1 style="margin:0;font-size:20px;letter-spacing:-.02em;font-weight:600">Settings</h1></div>
+      <div style="padding:24px;display:grid;grid-template-columns:{{ settingsCols }};gap:32px;max-width:1040px">
+        <div style="display:flex;flex-direction:{{ settingsNavDir }};gap:2px;align-self:start">
+          <sc-for list="{{ settingsTabs }}" as="s" hint-placeholder-count="3"><button onClick="{{ s.set }}" style="height:34px;padding:0 10px;border-radius:6px;border:0;background:{{ s.bg }};color:{{ s.fg }};font-size:14px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s ease-out" style-hover="background:var(--hover)">{{ s.label }}</button></sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:24px;min-width:0">
+          <sc-if value="{{ stProfile }}">
+            <div class="fade" style="border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:16px">
+              <h2 style="margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em">Profile</h2>
+              <div style="display:flex;align-items:center;gap:16px"><span style="width:56px;height:56px;border-radius:50%;background:var(--inv);color:var(--inv-t);display:grid;place-items:center;font-weight:600;font-size:18px">MR</span><button style="height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Change photo</button></div>
+              <div style="display:grid;grid-template-columns:{{ twoCols }};gap:14px">
+                <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Full name<input defaultValue="Marisol Reyes" style="height:40px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:16px;background:var(--surface);color:var(--t1)" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></label>
+                <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Email<input defaultValue="marisol@reyes.studio" style="height:40px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:16px;background:var(--surface);color:var(--t1)" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></label>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px"><label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer"><button onClick="{{ toggleTheme }}" role="switch" aria-checked="{{ isDark }}" style="width:36px;height:20px;border-radius:10px;border:0;background:{{ switchBg }};position:relative;cursor:pointer;transition:background .15s ease-out"><span style="position:absolute;top:2px;left:{{ switchX }};width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s ease-out"></span></button>Dark mode</label><button onClick="{{ saveSettings }}" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--accent-h)">Save changes</button></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ stBrand }}">
+            <div class="fade" style="border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em">Brand kit</h2><button onClick="{{ confirmRemoveBrand }}" style="height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:#DC2626;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Remove brand kit</button></div>
+              <div style="display:grid;grid-template-columns:{{ twoCols }};gap:14px">
+                <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Instagram handle<input value="{{ brandHandle }}" onChange="{{ setHandle }}" style="height:40px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:16px;background:var(--surface);color:var(--t1)" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></label>
+                <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Logo<div style="height:40px;border:1px dashed var(--border);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--t2);cursor:pointer;transition:border-color .15s ease-out" style-hover="border-color:var(--accent)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>reyes-mark.svg · 4 KB</div></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Brand colors<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ brandColors }}" as="c" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:6px;padding:6px 10px 6px 6px;font-size:13px;color:var(--t1)"><span style="width:20px;height:20px;border-radius:4px;background:{{ c }}"></span>{{ c }}</div></sc-for><button style="height:34px;padding:0 10px;border-radius:6px;border:1px dashed var(--border);background:none;color:var(--t2);font-size:13px;cursor:pointer" style-hover="border-color:var(--accent);color:var(--accent)">+ Add</button></div></div>
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Saved presets<div style="display:grid;grid-template-columns:{{ presetCols }};gap:8px"><sc-for list="{{ presets }}" as="p" hint-placeholder-count="3"><div style="border:1px solid var(--border);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:6px;color:var(--t1)"><div style="display:flex;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:{{ p.a }}"></span><span style="width:14px;height:14px;border-radius:3px;background:{{ p.b }}"></span></div><span style="font-weight:500">{{ p.name }}</span><span style="color:var(--t3);font-size:12px">{{ p.font }}</span></div></sc-for></div></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ stBilling }}">
+            <div class="fade" style="display:flex;flex-direction:column;gap:16px">
+              <div style="display:grid;grid-template-columns:{{ twoCols }};gap:16px">
+                <div style="border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600;font-size:16px;letter-spacing:-.01em">Pro</span><span style="font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--t2)">Active</span></div><span style="display:flex;align-items:baseline;gap:4px"><span style="font-size:24px;font-weight:600;letter-spacing:-.02em">€29</span><span style="color:var(--t3);font-size:13px">/ month · renews 1 Oct 2026</span></span><div style="display:flex;gap:8px"><button style="height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--accent-h)">Upgrade to Agency</button><button style="height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Manage</button></div></div>
+                <div style="border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:12px"><span style="font-weight:600;font-size:16px;letter-spacing:-.01em">Usage</span><div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--t2)">Carousels this month</span><span style="font-weight:500">43 / 100</span></div><div style="height:6px;border-radius:3px;background:var(--border)"><div style="width:43%;height:100%;background:var(--accent);border-radius:3px"></div></div><span style="font-size:13px;color:var(--t3)">Resets in 30 days. Exports and AI generations are unlimited on Pro.</span></div>
+              </div>
+              <div style="border:1px solid var(--border);border-radius:10px;background:var(--surface);overflow:hidden">
+                <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-weight:600;font-size:16px;letter-spacing:-.01em">Invoices</div>
+                <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px;min-width:520px">
+                  <thead><tr style="color:var(--t3);font-size:13px;text-align:left"><th style="padding:10px 20px;font-weight:500;border-bottom:1px solid var(--border)">Invoice</th><th style="padding:10px 20px;font-weight:500;border-bottom:1px solid var(--border)">Date</th><th style="padding:10px 20px;font-weight:500;border-bottom:1px solid var(--border)">Amount</th><th style="padding:10px 20px;font-weight:500;border-bottom:1px solid var(--border)">Status</th><th style="padding:10px 20px;border-bottom:1px solid var(--border)"></th></tr></thead>
+                  <tbody><sc-for list="{{ invoices }}" as="i" hint-placeholder-count="6"><tr style="transition:background .15s ease-out" style-hover="background:var(--hover)"><td style="padding:12px 20px;border-bottom:1px solid var(--border);font-weight:500">{{ i.id }}</td><td style="padding:12px 20px;border-bottom:1px solid var(--border);color:var(--t2)">{{ i.date }}</td><td style="padding:12px 20px;border-bottom:1px solid var(--border)">{{ i.amount }}</td><td style="padding:12px 20px;border-bottom:1px solid var(--border)"><span style="font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--t2)">{{ i.status }}</span></td><td style="padding:12px 20px;border-bottom:1px solid var(--border);text-align:right"><button onClick="{{ i.dl }}" style="height:28px;padding:0 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:13px;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">PDF</button></td></tr></sc-for></tbody>
+                </table></div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+  </main>
+</div>
+</sc-if>
+
+<!-- ================= EDITOR ================= -->
+<sc-if value="{{ isEditor }}">
+<div data-screen-label="Editor" style="height:100vh;display:flex;flex-direction:column;background:var(--shell)">
+  <div style="height:52px;display:flex;align-items:center;gap:12px;padding:0 12px;border-bottom:1px solid var(--border);background:var(--surface);flex:none">
+    <button onClick="{{ goDashboard }}" aria-label="Back" style="width:32px;height:32px;border-radius:6px;border:0;background:none;color:var(--t2);display:grid;place-items:center;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+    <input value="{{ projectName }}" onChange="{{ setProjectName }}" onBlur="{{ touch }}" aria-label="Project name" style="height:32px;border:1px solid transparent;border-radius:6px;padding:0 8px;font-size:14px;font-weight:500;background:transparent;color:var(--t1);min-width:0;width:{{ nameW }};transition:border-color .15s ease-out" style-hover="border-color:var(--border)" style-focus="border-color:var(--accent);outline:none;background:var(--surface)">
+    <span style="font-size:13px;color:var(--t3);min-width:80px;display:flex;align-items:center;gap:6px">{{ saveLabel }}</span>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <sc-if value="{{ wide }}">
+      <button onClick="{{ openAi }}" style="height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s ease-out" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/></svg>Generate</button>
+      <button onClick="{{ togglePreview }}" style="height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Preview</button>
+      <button onClick="{{ share }}" style="height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Share</button>
+      </sc-if>
+      <button onClick="{{ openExport }}" style="height:32px;padding:0 12px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s ease-out" style-hover="background:var(--accent-h)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12m0 0-4-4m4 4 4-4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>Export</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ narrow }}">
+    <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:16px;overflow:auto">
+      <div style="border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:12px 14px;font-size:13px;color:var(--t2);display:flex;gap:10px;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="flex:none"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8"/></svg>Open on desktop to edit. This is a read‑only preview.</div>
+      <div style="width:100%;max-width:360px;margin:0 auto;aspect-ratio:1080/1350;border-radius:10px;overflow:hidden;border:1px solid var(--border);position:relative">
+        <div style="width:1080px;height:1350px;transform:scale({{ mobileScale }});transform-origin:0 0;background:{{ slideBg }};color:{{ slideFg }};font-family:{{ slideFont }};padding:96px;display:flex;flex-direction:column;justify-content:{{ slideJustify }};text-align:{{ align }}"><div style="font-size:{{ slideHs }};font-weight:{{ slideHw }};letter-spacing:-.03em;line-height:1.05">{{ activeHeadline }}</div><div style="font-size:40px;line-height:1.4;opacity:.78;margin-top:32px">{{ activeBody }}</div></div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:8px;align-items:center"><button onClick="{{ prevSlide }}" style="width:36px;height:36px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);cursor:pointer">‹</button><span style="font-size:13px;color:var(--t2)">{{ pageLabel }}</span><button onClick="{{ nextSlide }}" style="width:36px;height:36px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);cursor:pointer">›</button></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ wide }}">
+  <div style="flex:1;display:grid;grid-template-columns:{{ editorCols }};min-height:0">
+    <!-- LEFT RAIL -->
+    <aside style="border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;font-size:13px;color:var(--t2)"><span>Slides · {{ slideCount }}</span><button onClick="{{ addSlide }}" aria-label="Add slide" style="width:24px;height:24px;border-radius:6px;border:0;background:none;color:var(--t2);display:grid;place-items:center;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover);color:var(--t1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      <div style="flex:1;overflow-y:auto;padding:4px 16px 16px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ railSlides }}" as="s" hint-placeholder-count="5">
+          <div draggable="true" onDragStart="{{ s.dragStart }}" onDragOver="{{ s.dragOver }}" onDrop="{{ s.drop }}" onDragEnd="{{ dragEnd }}" onClick="{{ s.select }}" style="display:flex;gap:8px;align-items:flex-start;position:relative;opacity:{{ s.op }};transform:translateY({{ s.ty }});transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .15s ease-out;cursor:grab">
+            <span style="font-size:12px;color:var(--t3);width:16px;text-align:right;padding-top:4px">{{ s.n }}</span>
+            <div style="flex:1;aspect-ratio:1080/1350;border-radius:6px;overflow:hidden;border:2px solid {{ s.border }};background:{{ slideBg }};color:{{ slideFg }};font-family:{{ slideFont }};padding:10%;display:flex;flex-direction:column;justify-content:{{ slideJustify }};text-align:{{ align }};font-size:9px;font-weight:{{ slideHw }};letter-spacing:-.03em;line-height:1.1;transition:border-color .15s ease-out;position:relative" style-hover="border-color:var(--t3)">
+              {{ s.headline }}
+              <div style="position:absolute;top:4px;right:4px;display:flex;gap:2px;opacity:0;transition:opacity .15s ease-out" style-hover="opacity:1">
+                <button onClick="{{ s.dup }}" aria-label="Duplicate" style="width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--t2);display:grid;place-items:center;cursor:pointer" style-hover="color:var(--t1)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16V4h12"/></svg></button>
+                <button onClick="{{ s.del }}" aria-label="Delete" style="width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--t2);display:grid;place-items:center;cursor:pointer" style-hover="color:#DC2626"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+        <button onClick="{{ addSlide }}" style="margin-left:24px;height:36px;border-radius:6px;border:1px dashed var(--border);background:none;color:var(--t2);font-size:13px;cursor:pointer;transition:all .15s ease-out" style-hover="border-color:var(--accent);color:var(--accent)">+ Add slide</button>
+      </div>
+    </aside>
+
+    <!-- CANVAS -->
+    <section style="position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--shell)">
+      <div style="flex:1;display:grid;place-items:center;overflow:auto;padding:32px">
+        <div style="width:{{ canvasW }};height:{{ canvasH }};position:relative;border-radius:4px;box-shadow:0 0 0 1px var(--border);transition:width .2s ease-out,height .2s ease-out">
+          <div style="width:1080px;height:1350px;transform:scale({{ canvasScale }});transform-origin:0 0;background:{{ slideBg }};color:{{ slideFg }};font-family:{{ slideFont }};padding:96px;display:flex;flex-direction:column;justify-content:{{ slideJustify }};text-align:{{ align }};position:absolute;left:0;top:0;transition:background .2s ease-out">
+            <div style="font-size:34px;letter-spacing:.1em;text-transform:uppercase;opacity:.55;margin-bottom:auto;display:flex;justify-content:space-between"><span>{{ slideTypeLabel }}</span><span>{{ pageLabel }}</span></div>
+            <div key="{{ activeKey }}" contentEditable="true" suppressContentEditableWarning="true" onBlur="{{ editHeadline }}" onDoubleClick="{{ focusEdit }}" style="font-size:{{ slideHs }};font-weight:{{ slideHw }};letter-spacing:-.03em;line-height:1.05;text-wrap:pretty;cursor:text;outline:none">{{ activeHeadline }}</div>
+            <div key="{{ activeKeyB }}" contentEditable="true" suppressContentEditableWarning="true" onBlur="{{ editBody }}" style="font-size:40px;line-height:1.4;opacity:.78;margin-top:32px;text-wrap:pretty;cursor:text;outline:none">{{ activeBody }}</div>
+            <div style="display:flex;justify-content:space-between;font-size:30px;opacity:.55;margin-top:auto;padding-top:60px"><span>{{ brandHandle }}</span><span style="display:flex;gap:10px"><sc-for list="{{ progressDots }}" as="d" hint-placeholder-count="5"><span style="width:{{ d.w }};height:8px;border-radius:4px;background:currentColor;opacity:{{ d.op }}"></span></sc-for></span></div>
+          </div>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px;box-shadow:var(--shadow)">
+        <button onClick="{{ prevSlide }}" aria-label="Previous slide" style="width:28px;height:28px;border-radius:6px;border:0;background:none;color:var(--t2);display:grid;place-items:center;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+        <span style="font-size:13px;color:var(--t1);font-weight:500;min-width:44px;text-align:center;font-variant-numeric:tabular-nums">{{ pageLabel }}</span>
+        <button onClick="{{ nextSlide }}" aria-label="Next slide" style="width:28px;height:28px;border-radius:6px;border:0;background:none;color:var(--t2);display:grid;place-items:center;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+        <span style="width:1px;height:18px;background:var(--border);margin:0 4px"></span>
+        <button onClick="{{ zoomOut }}" aria-label="Zoom out" style="width:28px;height:28px;border-radius:6px;border:0;background:none;color:var(--t2);display:grid;place-items:center;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+        <button onClick="{{ zoomReset }}" style="height:28px;padding:0 6px;border-radius:6px;border:0;background:none;color:var(--t2);font-size:13px;cursor:pointer;min-width:44px;font-variant-numeric:tabular-nums;transition:background .15s ease-out" style-hover="background:var(--hover)">{{ zoomLabel }}</button>
+        <button onClick="{{ zoomIn }}" aria-label="Zoom in" style="width:28px;height:28px;border-radius:6px;border:0;background:none;color:var(--t2);display:grid;place-items:center;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+      <span style="position:absolute;top:12px;right:16px;font-size:12px;color:var(--t3)">1080 × 1350 · Double‑click text to edit</span>
+    </section>
+
+    <!-- INSPECTOR -->
+    <aside style="border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;padding:0 16px;border-bottom:1px solid var(--border)">
+        <sc-for list="{{ inspTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.set }}" style="height:44px;padding:0 12px;border:0;border-bottom:2px solid {{ t.line }};margin-bottom:-1px;background:none;color:{{ t.fg }};font-size:13px;font-weight:500;cursor:pointer;transition:color .15s ease-out" style-hover="color:var(--t1)">{{ t.label }}</button></sc-for>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:18px">
+        <sc-if value="{{ tabContent }}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:18px">
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Slide type<select value="{{ activeType }}" onChange="{{ setType }}" style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:14px;background:var(--surface);color:var(--t1)" style-focus="border-color:var(--accent);outline:none"><option value="hook">Hook</option><option value="point">Point</option><option value="quote">Quote</option><option value="list">List</option><option value="cta">CTA</option></select></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Headline<textarea key="{{ activeKey }}" defaultValue="{{ activeHeadline }}" onBlur="{{ editHeadlineInput }}" rows="3" style="border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:16px;line-height:1.4;background:var(--surface);color:var(--t1);resize:vertical;transition:border-color .15s ease-out" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></textarea></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Body<textarea key="{{ activeKeyB }}" defaultValue="{{ activeBody }}" onBlur="{{ editBodyInput }}" rows="5" style="border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:16px;line-height:1.4;background:var(--surface);color:var(--t1);resize:vertical;transition:border-color .15s ease-out" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></textarea></label>
+            <div style="display:flex;gap:8px"><button onClick="{{ dupActive }}" style="flex:1;height:34px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Duplicate</button><button onClick="{{ delActive }}" style="flex:1;height:34px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:#DC2626;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Delete slide</button></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ tabStyle }}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Template<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><sc-for list="{{ styleTemplates }}" as="t" hint-placeholder-count="6"><button onClick="{{ t.pick }}" title="{{ t.name }}" style="aspect-ratio:4/5;border-radius:6px;border:2px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font-family:{{ t.font }};font-size:9px;font-weight:{{ t.hw }};letter-spacing:-.02em;padding:8px;cursor:pointer;display:flex;align-items:flex-end;text-align:left;line-height:1.1;transition:border-color .15s ease-out" style-hover="border-color:var(--t3)">{{ t.name }}</button></sc-for></div></div>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Font pair<select value="{{ fontPair }}" onChange="{{ setFontPair }}" style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font-size:14px;background:var(--surface);color:var(--t1)" style-focus="border-color:var(--accent);outline:none"><option value="geist">Geist / Geist</option><option value="serif">Georgia / Geist</option><option value="mono">Geist Mono / Geist</option><option value="grotesk">Helvetica / Geist</option></select></label>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Color scheme<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ schemes }}" as="s" hint-placeholder-count="5"><button onClick="{{ s.pick }}" aria-label="{{ s.name }}" style="width:32px;height:32px;border-radius:6px;border:2px solid {{ s.border }};background:{{ s.bg }};cursor:pointer;display:grid;place-items:center;transition:border-color .15s ease-out"><span style="width:10px;height:10px;border-radius:50%;background:{{ s.fg }}"></span></button></sc-for></div></div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Alignment<div style="display:flex;border:1px solid var(--border);border-radius:6px;padding:3px;gap:2px;background:var(--shell)"><sc-for list="{{ aligns }}" as="a" hint-placeholder-count="3"><button onClick="{{ a.pick }}" style="flex:1;height:28px;border-radius:4px;border:0;background:{{ a.bg }};color:{{ a.fg }};font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out">{{ a.label }}</button></sc-for></div></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ tabBrand }}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Logo<div style="height:72px;border:1px dashed var(--border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--t2);cursor:pointer;transition:border-color .15s ease-out" style-hover="border-color:var(--accent)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span style="font-size:13px">Drop SVG or PNG · reyes-mark.svg</span></div></div>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--t2)">Handle<input value="{{ brandHandle }}" onChange="{{ setHandle }}" style="height:36px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:16px;background:var(--surface);color:var(--t1)" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></label>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Brand colors<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ brandColors }}" as="c" hint-placeholder-count="4"><span title="{{ c }}" style="width:32px;height:32px;border-radius:6px;background:{{ c }};border:1px solid var(--border)"></span></sc-for></div></div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Saved presets<div style="display:flex;flex-direction:column;gap:6px"><sc-for list="{{ presets }}" as="p" hint-placeholder-count="3"><button onClick="{{ p.apply }}" style="display:flex;align-items:center;gap:10px;height:40px;padding:0 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--t1);font-size:13px;cursor:pointer;text-align:left;transition:background .15s ease-out" style-hover="background:var(--hover)"><span style="display:flex;gap:3px"><span style="width:14px;height:14px;border-radius:3px;background:{{ p.a }}"></span><span style="width:14px;height:14px;border-radius:3px;background:{{ p.b }}"></span></span><span style="font-weight:500">{{ p.name }}</span><span style="color:var(--t3);margin-left:auto">{{ p.font }}</span></button></sc-for></div></div>
+          </div>
+        </sc-if>
+      </div>
+    </aside>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ================= OVERLAYS ================= -->
+<sc-if value="{{ aiOpen }}">
+<div onClick="{{ closeAi }}" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:grid;place-items:center;padding:16px">
+  <div onClick="{{ stop }}" class="pop" role="dialog" style="width:100%;max-width:560px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:20px;letter-spacing:-.02em;font-weight:600">Generate carousel</h2><button onClick="{{ closeAi }}" aria-label="Close" style="width:28px;height:28px;border-radius:6px;border:0;background:none;color:var(--t2);cursor:pointer;display:grid;place-items:center" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <sc-if value="{{ notGenerating }}">
+      <textarea value="{{ aiText }}" onChange="{{ setAiText }}" rows="5" placeholder="Paste a tweet, a note, or the long version. Slidecast will find the hook." style="border:1px solid var(--border);border-radius:6px;padding:12px;font-size:16px;line-height:1.5;background:var(--surface);color:var(--t1);resize:vertical;transition:border-color .15s ease-out" style-focus="border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)"></textarea>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Tone<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ tones }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.pick }}" style="height:32px;padding:0 12px;border-radius:6px;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:500;cursor:pointer;transition:all .15s ease-out">{{ t.label }}</button></sc-for></div></div>
+      <label style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)"><span style="display:flex;justify-content:space-between"><span>Slides</span><span style="color:var(--t1);font-weight:500">{{ aiCount }}</span></span><input type="range" min="5" max="10" value="{{ aiCount }}" onChange="{{ setAiCount }}" style="accent-color:var(--accent);width:100%"></label>
+      <div style="display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ closeAi }}" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--hover)">Cancel</button><button onClick="{{ generate }}" disabled="{{ aiDisabled }}" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;opacity:{{ aiBtnOp }};transition:background .15s ease-out" style-hover="background:var(--accent-h)">Generate {{ aiCount }} slides</button></div>
+    </sc-if>
+    <sc-if value="{{ generating }}">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--t2)"><span style="display:flex;align-items:center;gap:8px"><svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg>{{ genLabel }}</span><span>{{ genDone }} / {{ aiCount }}</span></div>
+        <div style="height:4px;border-radius:2px;background:var(--border)"><div style="height:100%;width:{{ genPct }};background:var(--accent);border-radius:2px;transition:width .3s ease-out"></div></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px"><sc-for list="{{ genSlots }}" as="g" hint-placeholder-count="5"><div class="{{ g.cls }}" style="aspect-ratio:4/5;border-radius:6px;border:1px solid var(--border);background:{{ g.bg }};color:{{ g.fg }};padding:8px;font-size:9px;font-weight:600;letter-spacing:-.02em;line-height:1.15;display:flex;align-items:flex-end;text-wrap:pretty;overflow:hidden">{{ g.t }}</div></sc-for></div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ exportOpen }}">
+<div onClick="{{ closeExport }}" style="position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:50;display:flex;justify-content:flex-end">
+  <div onClick="{{ stop }}" class="drawer" role="dialog" style="width:100%;max-width:400px;background:var(--surface);border-left:1px solid var(--border);box-shadow:var(--shadow);padding:20px;display:flex;flex-direction:column;gap:20px;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:20px;letter-spacing:-.02em;font-weight:600">Export</h2><button onClick="{{ closeExport }}" aria-label="Close" style="width:28px;height:28px;border-radius:6px;border:0;background:none;color:var(--t2);cursor:pointer;display:grid;place-items:center" style-hover="background:var(--hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Format<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><sc-for list="{{ formats }}" as="f" hint-placeholder-count="2"><button onClick="{{ f.pick }}" style="border:1px solid {{ f.border }};background:{{ f.bg }};border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:2px;text-align:left;cursor:pointer;color:var(--t1);transition:all .15s ease-out"><span style="font-weight:500;font-size:14px">{{ f.label }}</span><span style="font-size:13px;color:var(--t2)">{{ f.desc }}</span></button></sc-for></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Size<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><sc-for list="{{ sizes }}" as="s" hint-placeholder-count="2"><button onClick="{{ s.pick }}" style="border:1px solid {{ s.border }};background:{{ s.bg }};border-radius:6px;padding:10px;font-size:14px;font-weight:500;cursor:pointer;color:var(--t1);transition:all .15s ease-out">{{ s.label }}<span style="display:block;font-size:12px;color:var(--t2);font-weight:400">{{ s.dim }}</span></button></sc-for></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--t2)">Quality<div style="display:flex;border:1px solid var(--border);border-radius:6px;padding:3px;gap:2px;background:var(--shell)"><sc-for list="{{ qualities }}" as="q" hint-placeholder-count="3"><button onClick="{{ q.pick }}" style="flex:1;height:30px;border-radius:4px;border:0;background:{{ q.bg }};color:{{ q.fg }};font-size:13px;font-weight:500;cursor:pointer;transition:background .15s ease-out">{{ q.label }}</button></sc-for></div></div>
+    <div style="border:1px solid var(--border);border-radius:6px;padding:12px;font-size:13px;color:var(--t2);display:flex;justify-content:space-between"><span>{{ exportSummary }}</span><span style="color:var(--t1);font-weight:500">{{ exportSize }}</span></div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:auto">
+      <button onClick="{{ doExport }}" disabled="{{ exporting }}" style="height:40px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;opacity:{{ exportBtnOp }};transition:background .15s ease-out" style-hover="background:var(--accent-h)">{{ exportBtnContent }}</button>
+      <button onClick="{{ schedule }}" style="height:40px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:14px;font-weight:500;cursor:pointer;transition:background .15s ease-out" style-hover="background:var(--hover)">Schedule via Buffer</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ previewOpen }}">
+<div onClick="{{ togglePreview }}" style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px">
+  <div onClick="{{ stop }}" style="width:min(360px,80vw);aspect-ratio:1080/1350;border-radius:10px;overflow:hidden;position:relative"><div style="width:1080px;height:1350px;transform:scale({{ previewScale }});transform-origin:0 0;background:{{ slideBg }};color:{{ slideFg }};font-family:{{ slideFont }};padding:96px;display:flex;flex-direction:column;justify-content:{{ slideJustify }};text-align:{{ align }}"><div style="font-size:{{ slideHs }};font-weight:{{ slideHw }};letter-spacing:-.03em;line-height:1.05">{{ activeHeadline }}</div><div style="font-size:40px;line-height:1.4;opacity:.78;margin-top:32px">{{ activeBody }}</div></div></div>
+  <div onClick="{{ stop }}" style="display:flex;gap:8px;align-items:center;color:#fff;font-size:13px"><button onClick="{{ prevSlide }}" style="width:36px;height:36px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:none;color:#fff;cursor:pointer">‹</button>{{ pageLabel }}<button onClick="{{ nextSlide }}" style="width:36px;height:36px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:none;color:#fff;cursor:pointer">›</button></div>
+  <span style="color:rgba(255,255,255,.5);font-size:12px">Esc to close · ← → to navigate</span>
+</div>
+</sc-if>
+
+<sc-if value="{{ confirm }}">
+<div onClick="{{ cancelConfirm }}" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:60;display:grid;place-items:center;padding:16px">
+  <div onClick="{{ stop }}" class="pop" role="alertdialog" style="width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:16px">
+    <h2 style="margin:0;font-size:20px;letter-spacing:-.02em;font-weight:600">{{ confirmTitle }}</h2>
+    <p style="margin:0;color:var(--t2);line-height:1.5">{{ confirmBody }}</p>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ cancelConfirm }}" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--t1);font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--hover)">Cancel</button><button onClick="{{ doConfirm }}" style="height:36px;padding:0 14px;border-radius:6px;border:1px solid #DC2626;background:#DC2626;color:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s ease-out" style-hover="opacity:.9">{{ confirmCta }}</button></div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ cmdOpen }}">
+<div onClick="{{ closeCmd }}" style="position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:70;display:flex;justify-content:center;padding:12vh 16px 0;align-items:flex-start">
+  <div onClick="{{ stop }}" class="pop" style="width:100%;max-width:520px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--border)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--t3)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input autoFocus="true" value="{{ cmdQuery }}" onChange="{{ setCmdQuery }}" onKeyDown="{{ cmdKey }}" placeholder="Type a command or search…" style="flex:1;height:48px;border:0;background:none;font-size:16px;color:var(--t1);outline:none"><kbd style="font-size:11px;color:var(--t3);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-family:inherit">Esc</kbd></div>
+    <div style="padding:8px;display:flex;flex-direction:column;max-height:320px;overflow-y:auto">
+      <sc-for list="{{ cmdItems }}" as="c" hint-placeholder-count="6"><button onClick="{{ c.run }}" style="display:flex;align-items:center;gap:10px;height:40px;padding:0 10px;border-radius:6px;border:0;background:{{ c.bg }};color:var(--t1);font-size:14px;cursor:pointer;text-align:left;transition:background .15s ease-out" style-hover="background:var(--hover)"><span style="color:var(--t3);font-size:12px;width:64px">{{ c.group }}</span>{{ c.label }}<kbd style="margin-left:auto;font-size:11px;color:var(--t3);font-family:inherit">{{ c.kbd }}</kbd></button></sc-for>
+      <sc-if value="{{ cmdEmpty }}"><p style="margin:0;padding:16px;text-align:center;color:var(--t3);font-size:13px">No results</p></sc-if>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<div style="position:fixed;right:16px;bottom:16px;z-index:80;display:flex;flex-direction:column;gap:8px;pointer-events:none">
+  <sc-for list="{{ toasts }}" as="t" hint-placeholder-count="0"><div class="toast" style="pointer-events:auto;display:flex;align-items:center;gap:12px;background:var(--inv);color:var(--inv-t);border-radius:8px;padding:10px 12px 10px 14px;font-size:13px;box-shadow:var(--shadow);min-width:240px"><span style="flex:1">{{ t.msg }}</span><sc-if value="{{ t.undo }}"><button onClick="{{ t.undo }}" style="height:26px;padding:0 10px;border-radius:4px;border:1px solid rgba(128,128,128,.4);background:none;color:inherit;font-size:13px;font-weight:500;cursor:pointer" style-hover="background:rgba(128,128,128,.2)">Undo</button></sc-if><button onClick="{{ t.close }}" aria-label="Dismiss" style="width:24px;height:24px;border:0;background:none;color:inherit;opacity:.6;cursor:pointer;display:grid;place-items:center" style-hover="opacity:1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div></sc-for>
+</div>
+</div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#4F46E5&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#4F46E5&quot;,&quot;#0A0A0A&quot;,&quot;#0F766E&quot;,&quot;#C2410C&quot;],&quot;section&quot;:&quot;Brand&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;landing&quot;,&quot;options&quot;:[&quot;landing&quot;,&quot;auth&quot;,&quot;dashboard&quot;,&quot;editor&quot;,&quot;templates&quot;,&quot;settings&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Prototype&quot;},&quot;darkMode&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototype&quot;}}">
+const TEMPLATES = [
+  ['Mono','Minimal','#FFFFFF','#0A0A0A','geist',600,'flex-end'],['Ink','Minimal','#0A0A0A','#FAFAFA','geist',600,'flex-end'],['Paper','Minimal','#F5F2EB','#1C1917','serif',500,'center'],['Slate','Minimal','#1E293B','#F8FAFC','geist',500,'flex-end'],['Fog','Minimal','#E7E5E4','#292524','grotesk',500,'flex-start'],
+  ['Signal','Bold','#4F46E5','#FFFFFF','grotesk',700,'flex-end'],['Tar','Bold','#111111','#FDE047','grotesk',700,'center'],['Cherry','Bold','#B91C1C','#FFF1F2','grotesk',700,'flex-end'],['Volt','Bold','#CCFF00','#111111','mono',700,'flex-start'],['Cobalt','Bold','#1D4ED8','#DBEAFE','geist',700,'flex-end'],
+  ['Journal','Editorial','#FFFDF7','#1F1F1F','serif',500,'flex-start'],['Broadsheet','Editorial','#111111','#E7E5E4','serif',500,'flex-start'],['Manuscript','Editorial','#F0EDE6','#3F3A34','serif',400,'center'],['Column','Editorial','#FFFFFF','#374151','serif',500,'flex-end'],['Margin','Editorial','#2B2B2B','#F5F5F4','serif',400,'flex-start'],
+  ['Bubble','Playful','#FDE68A','#78350F','geist',700,'center'],['Mint','Playful','#A7F3D0','#064E3B','geist',700,'flex-end'],['Peach','Playful','#FED7AA','#7C2D12','grotesk',700,'center'],['Sky','Playful','#BAE6FD','#0C4A6E','geist',700,'flex-start'],['Lilac','Playful','#E9D5FF','#4C1D95','grotesk',700,'flex-end']
+].map((t,i)=>({id:i,name:t[0],style:t[1],bg:t[2],fg:t[3],font:t[4],hw:t[5],justify:t[6]}));
+const FONTS={geist:'"Geist",system-ui,sans-serif',serif:'Georgia,"Times New Roman",serif',mono:'"Geist Mono",ui-monospace,Menlo,monospace',grotesk:'"Helvetica Neue",Helvetica,Arial,sans-serif'};
+const SCHEMES=[{name:'Ink on white',bg:'#FFFFFF',fg:'#0A0A0A'},{name:'White on ink',bg:'#0A0A0A',fg:'#FAFAFA'},{name:'Brand',bg:'#4F46E5',fg:'#FFFFFF'},{name:'Paper',bg:'#F5F2EB',fg:'#1C1917'},{name:'Volt',bg:'#CCFF00',fg:'#111111'}];
+const SEED_SLIDES=[
+  {type:'hook',headline:'Post one carousel a day. Not three a week.',body:'The math nobody tells you about consistency.'},
+  {type:'point',headline:'Day 1–30: nobody is watching.',body:'Use it. This is the only time you can be bad in public for free.'},
+  {type:'point',headline:'Day 31–60: the algorithm starts testing you.',body:'One in ten posts gets pushed. You won\u2019t know which. Post anyway.'},
+  {type:'quote',headline:'“Consistency is a distribution strategy, not a personality trait.”',body:'— Marisol Reyes'},
+  {type:'list',headline:'The 3 slides every carousel needs',body:'A hook that names a pain. A turn that reframes it. A CTA that asks for one thing.'},
+  {type:'point',headline:'Day 61–90: saves beat likes.',body:'Write for the person who screenshots. That\u2019s who the algorithm trusts.'},
+  {type:'point',headline:'800 → 41k in 90 days.',body:'Not viral. Just 90 posts in a row.'},
+  {type:'cta',headline:'Save this. Then post today.',body:'Follow @marisol.writes for one carousel system a week.'}
+];
+const PROJECTS=[
+  ['90-day carousel system',8,'2 min ago','Draft',0],['Why I stopped using Canva',6,'1 h ago','Scheduled',1],['Client onboarding checklist',10,'3 h ago','Published',5],['Ghostwriting rates 2026',7,'Yesterday','Draft',10],['5 hooks that stopped the scroll',5,'Yesterday','Published',6],['Founder voice vs brand voice',9,'2 days ago','Scheduled',3],['The €29 tool stack',8,'3 days ago','Published',8],['Reyes Studio Q3 recap',6,'4 days ago','Published',2],['How to price a carousel',7,'Last week','Draft',15],['Notion vs. paper',5,'Last week','Published',12],['3 clients I fired (and why)',8,'2 weeks ago','Published',11],['Batching day: the setup',9,'3 weeks ago','Published',18]
+].map((p,i)=>({id:i,title:p[0],count:p[1],edited:p[2],status:p[3],tpl:p[4]}));
+const INVOICES=[['INV-2026-0091','1 Sep 2026','€29.00','Paid'],['INV-2026-0078','1 Aug 2026','€29.00','Paid'],['INV-2026-0064','1 Jul 2026','€29.00','Paid'],['INV-2026-0051','1 Jun 2026','€29.00','Paid'],['INV-2026-0037','1 May 2026','€29.00','Paid'],['INV-2026-0022','1 Apr 2026','€0.00','Trial']].map(i=>({id:i[0],date:i[1],amount:i[2],status:i[3]}));
+const GEN_HEADS=['Most creators post 3× a week and wonder why nothing sticks.','Volume is the strategy. Quality is the by-product.','Day 1–30: nobody is watching. Good.','Day 31–60: the algorithm starts testing you.','Write for the person who screenshots.','Saves are the only metric that compounds.','800 → 41k. Ninety posts. Zero viral.','The system fits on one slide.','You already have 90 ideas. You have 90 drafts.','Post today. Save this for tomorrow.'];
+const FAQS=[['Does Slidecast write the slides for me?','Yes. Paste anything from a tweet to 2,000 words and pick a tone. You get 5–10 slides you can edit word by word. Nothing posts without you.'],['What sizes can I export?','PNG or PDF at 1080×1350 (Instagram post) or 1080×1920 (Story). PDFs work as LinkedIn document posts. Every export is numbered and zipped.'],['Can I use my own fonts and colors?','Pro and Agency plans include a brand kit: logo, handle, up to 6 colors, and saved presets that apply across every template.'],['How is this different from Canva?','Canva is a general design tool. Slidecast only does carousels — so generation, brand kits, reorder, and export are one screen, not a workflow.'],['Is there a free plan?','Yes. 5 carousels a month, PNG export, all templates. No card required.']];
+const ICON=(d,s=20)=>React.createElement('svg',{width:s,height:s,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.5,strokeLinecap:'round',strokeLinejoin:'round',style:{flex:'none'}},...d.map((p,i)=>React.createElement('path',{key:i,d:p})));
+const ICONS={grid:['M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z'],layout:['M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 9h18M9 21V9'],settings:['M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z','M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z'],sun:['M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2m0 18v2M4.2 4.2l1.4 1.4m12.8 12.8 1.4 1.4M1 12h2m18 0h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4'],moon:['M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z']};
+let uid=100;
+class Component extends DCLogic {
+  state={screen:'landing',theme:'light',w:1440,authMode:'signin',authEmail:'',authPw:'',authError:'',authBusy:false,projects:PROJECTS,loadingDash:false,loadingTpl:false,query:'',projectName:'90-day carousel system',slides:SEED_SLIDES.map((s,i)=>({...s,id:i})),active:0,zoom:1,tab:'content',tpl:0,fontPair:'geist',scheme:null,align:'left',brandHandle:'@marisol.writes',brandColors:['#4F46E5','#0A0A0A','#F5F2EB','#CCFF00'],saveState:'idle',aiOpen:false,aiText:'',aiTone:'Direct',aiCount:8,generating:false,genDone:0,exportOpen:false,fmt:'PNG',size:'Post',quality:'2x',exporting:false,toasts:[],confirm:null,cmdOpen:false,cmdQuery:'',dragIdx:null,overIdx:null,previewOpen:false,tplFilter:'All',tplHover:null,tplFrame:0,settingsTab:'profile',heroIdx:0,faqOpen:0};
+  componentDidMount(){
+    const p=this.props||{};if(p.startScreen&&p.startScreen!=='landing')this.setState({screen:p.startScreen});if(p.darkMode)this.setState({theme:'dark'});
+    this.onResize=()=>this.setState({w:window.innerWidth});this.onResize();window.addEventListener('resize',this.onResize);
+    this.heroT=setInterval(()=>this.setState(s=>({heroIdx:(s.heroIdx+1)%5})),2600);
+    this.onKey=e=>{const s=this.state;const meta=e.metaKey||e.ctrlKey;const tag=(e.target.tagName||'').toLowerCase();const typing=['input','textarea','select'].includes(tag)||e.target.isContentEditable;
+      if(meta&&e.key.toLowerCase()==='k'){e.preventDefault();this.setState({cmdOpen:!s.cmdOpen,cmdQuery:''});return}
+      if(e.key==='Escape'){this.setState({aiOpen:s.generating?s.aiOpen:false,exportOpen:false,cmdOpen:false,confirm:null,previewOpen:false});if(e.target.blur)e.target.blur();return}
+      if(s.screen!=='editor')return;
+      if(meta&&e.key.toLowerCase()==='s'){e.preventDefault();this.touch();return}
+      if(typing)return;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();this.nextSlide()}if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();this.prevSlide()}};
+    window.addEventListener('keydown',this.onKey);
+  }
+  componentWillUnmount(){window.removeEventListener('resize',this.onResize);window.removeEventListener('keydown',this.onKey);clearInterval(this.heroT);clearInterval(this.hoverT)}
+  go(screen){const patch={screen,cmdOpen:false,exportOpen:false,aiOpen:false,previewOpen:false};if(screen==='dashboard'){patch.loadingDash=true;setTimeout(()=>this.setState({loadingDash:false}),900)}if(screen==='templates'){patch.loadingTpl=true;setTimeout(()=>this.setState({loadingTpl:false}),900)}this.setState(patch);window.scrollTo(0,0)}
+  toast(msg,undo){const id=uid++;this.setState(s=>({toasts:[...s.toasts,{id,msg,undo}]}));setTimeout(()=>this.dismiss(id),4000)}
+  dismiss(id){this.setState(s=>({toasts:s.toasts.filter(t=>t.id!==id)}))}
+  touch(){clearTimeout(this.saveT1);clearTimeout(this.saveT2);this.setState({saveState:'saving'});this.saveT1=setTimeout(()=>{this.setState({saveState:'saved'});this.saveT2=setTimeout(()=>this.setState({saveState:'idle'}),3000)},700)}
+  upd(patch){this.setState(s=>({slides:s.slides.map((x,i)=>i===s.active?{...x,...patch}:x)}));this.touch()}
+  addSlide(){this.setState(s=>{const n=[...s.slides];n.splice(s.active+1,0,{id:uid++,type:'point',headline:'New point',body:'Say one thing here.'});return{slides:n,active:s.active+1}});this.touch()}
+  dup(i){this.setState(s=>{const n=[...s.slides];n.splice(i+1,0,{...s.slides[i],id:uid++});return{slides:n,active:i+1}});this.touch();this.toast('Slide duplicated')}
+  del(i){const s=this.state;if(s.slides.length<=1){this.toast('A carousel needs at least one slide');return}const removed=s.slides[i];const prev=s.slides;this.setState({slides:s.slides.filter((_,j)=>j!==i),active:Math.max(0,Math.min(i,s.slides.length-2))});this.touch();this.toast(`Deleted slide ${i+1}`,()=>{this.setState({slides:prev,active:i});this.setState(st=>({toasts:st.toasts.slice(0,-1)}))})}
+  nextSlide(){this.setState(s=>({active:Math.min(s.slides.length-1,s.active+1)}))}
+  prevSlide(){this.setState(s=>({active:Math.max(0,s.active-1)}))}
+  generate(){const s=this.state;this.setState({generating:true,genDone:0});const n=s.aiCount;let i=0;const step=()=>{i++;this.setState(st=>({genDone:i}));if(i<n)this.genT=setTimeout(step,520);else setTimeout(()=>{const slides=Array.from({length:n},(_,k)=>({id:uid++,type:k===0?'hook':k===n-1?'cta':'point',headline:GEN_HEADS[k%GEN_HEADS.length],body:k===0?s.aiText.slice(0,90)||'The math nobody tells you about consistency.':k===n-1?'Follow '+s.brandHandle+' for one system a week.':'One idea per slide. No more than two sentences.'}));this.setState({slides,active:0,generating:false,aiOpen:false,screen:'editor',projectName:s.projectName});this.touch();this.toast(`Generated ${n} slides`)},500)};this.genT=setTimeout(step,600)}
+  renderVals(){
+    const s=this.state,w=s.w,narrow=w<768,wide=!narrow,mid=w<1100;
+    const tpl=TEMPLATES[s.tpl];const sch=s.scheme!=null?SCHEMES[s.scheme]:null;
+    const slideBg=sch?sch.bg:tpl.bg,slideFg=sch?sch.fg:tpl.fg,slideFont=FONTS[s.fontPair];
+    const a=s.slides[Math.min(s.active,s.slides.length-1)]||s.slides[0];
+    const hs=a.type==='hook'||a.type==='cta'?'96px':a.type==='quote'?'72px':'84px';
+    const baseW=Math.min(440,Math.max(240,(w-560)*0.55));const cw=baseW*s.zoom;
+    const hero=[0,1,5,10,15].map((ti,i)=>{const t=TEMPLATES[ti];const sl=SEED_SLIDES[[0,1,3,4,7][i]];return{bg:t.bg,fg:t.fg,font:FONTS[t.font],justify:t.justify,hw:t.hw,hs:i===3?'26px':'30px',kicker:sl.type,headline:sl.headline,body:sl.body,n:i+1,dotW:i===s.heroIdx?'20px':'6px',dotBg:i===s.heroIdx?'var(--accent)':'var(--border)'}});
+    const tplList=TEMPLATES.filter(t=>s.tplFilter==='All'||t.style===s.tplFilter);
+    const hov=s.tplHover;const frames=['Post one carousel a day.','Day 31–60: the algorithm tests you.','Save this. Then post today.'];
+    const sel=(on)=>on?{bg:'var(--accent-soft)',border:'var(--accent)',fg:'var(--accent)'}:{bg:'var(--surface)',border:'var(--border)',fg:'var(--t2)'};
+    const seg=(on)=>on?{bg:'var(--surface)',fg:'var(--t1)'}:{bg:'transparent',fg:'var(--t2)'};
+    const q=s.query.trim().toLowerCase();const filtered=s.projects.filter(p=>p.title.toLowerCase().includes(q));
+    const cmdAll=[{group:'Go to',label:'Dashboard',kbd:'G D',run:()=>this.go('dashboard')},{group:'Go to',label:'Templates',kbd:'G T',run:()=>this.go('templates')},{group:'Go to',label:'Settings',kbd:'G S',run:()=>this.go('settings')},{group:'Go to',label:'Open editor',kbd:'G E',run:()=>this.go('editor')},{group:'Create',label:'New carousel with AI',kbd:'',run:()=>{this.setState({screen:'editor',aiOpen:true,cmdOpen:false})}},{group:'Editor',label:'Export…',kbd:'⌘E',run:()=>this.setState({screen:'editor',exportOpen:true,cmdOpen:false})},{group:'Editor',label:'Add slide',kbd:'',run:()=>{this.setState({cmdOpen:false});this.addSlide()}},{group:'Theme',label:s.theme==='dark'?'Switch to light mode':'Switch to dark mode',kbd:'',run:()=>this.setState(st=>({theme:st.theme==='dark'?'light':'dark',cmdOpen:false}))}].filter(c=>c.label.toLowerCase().includes(s.cmdQuery.toLowerCase()));
+    const fileCount=s.fmt==='PDF'?1:s.slides.length;const mb=(s.slides.length*(s.quality==='1x'?0.22:s.quality==='2x'?0.41:0.78)*(s.fmt==='PDF'?0.6:1)).toFixed(1);
+    const saveLabel=s.saveState==='saving'?[React.createElement('svg',{key:'i',className:'spin',width:12,height:12,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round'},React.createElement('path',{d:'M21 12a9 9 0 1 1-6.2-8.6'})),'Saving…']:s.saveState==='saved'?'Saved':'';
+    const spinner=React.createElement('svg',{key:'s',className:'spin',width:14,height:14,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round'},React.createElement('path',{d:'M21 12a9 9 0 1 1-6.2-8.6'}));
+    return {
+      accentStyle:{'--accent':(this.props||{}).accentColor||'#4F46E5','--accent-h':(this.props||{}).accentColor?'color-mix(in oklch,'+(this.props||{}).accentColor+',#000 12%)':'#4338CA','--accent-soft':'color-mix(in oklch,'+((this.props||{}).accentColor||'#4F46E5')+' 10%,transparent)'},
+      theme:s.theme,isDark:s.theme==='dark',themeIcon:ICON(ICONS[s.theme==='dark'?'sun':'moon'],16),toggleTheme:()=>this.setState({theme:s.theme==='dark'?'light':'dark'}),switchBg:s.theme==='dark'?'var(--accent)':'var(--border)',switchX:s.theme==='dark'?'18px':'2px',
+      narrow,wide,isLanding:s.screen==='landing',isAuth:s.screen==='auth',isShell:['dashboard','templates','settings'].includes(s.screen),isDashboard:s.screen==='dashboard',isTemplates:s.screen==='templates',isSettings:s.screen==='settings',isEditor:s.screen==='editor',
+      goLanding:()=>this.go('landing'),goSignIn:()=>this.setState({screen:'auth',authMode:'signin',authError:''}),goSignUp:()=>this.setState({screen:'auth',authMode:'signup',authError:''}),goDashboard:()=>this.go('dashboard'),openDemo:()=>this.go('editor'),stop:e=>e.stopPropagation(),
+      heroPad:narrow?'48px 24px':'96px 24px 80px',heroCols:mid?'1fr':'1.1fr 1fr',h1Size:narrow?'40px':'60px',sectionPad:narrow?'56px 24px':'96px 24px',featCols:mid?'1fr':'1fr 1fr',featSwapA:mid?2:1,featSwapB:mid?1:2,priceCols:narrow?'1fr':'repeat(3,1fr)',faqCols:mid?'1fr':'1fr 2fr',
+      heroSlides:hero,heroStripW:'500%',heroSlideW:'20%',heroTx:`-${s.heroIdx*20}%`,
+      landingGen:GEN_HEADS.slice(0,4).map((t,i)=>{const tp=TEMPLATES[[0,1,5,10][i]];return{t,bg:tp.bg,fg:tp.fg,op:i<3?1:.35}}),
+      plans:[{name:'Free',price:'€0',per:'/ month',desc:'For trying it on your own account.',features:['5 carousels a month','All 20 templates','PNG export at 1080×1350','Slidecast watermark on slide 8'],cta:'Start free',border:'var(--border)',btnBg:'var(--surface)',btnFg:'var(--t1)',btnBorder:'var(--border)'},{name:'Pro',price:'€29',per:'/ month',desc:'For creators posting daily.',features:['100 carousels a month','Brand kit: logo, handle, 6 colors','PNG + PDF, Post + Story sizes','Schedule via Buffer','No watermark'],cta:'Start 14-day trial',popular:true,border:'var(--accent)',btnBg:'var(--accent)',btnFg:'#fff',btnBorder:'var(--accent)'},{name:'Agency',price:'€79',per:'/ month',desc:'For teams managing client accounts.',features:['Unlimited carousels','10 brand kits, 5 seats','Client approval links','Priority generation queue','Invoices per client'],cta:'Talk to us',border:'var(--border)',btnBg:'var(--surface)',btnFg:'var(--t1)',btnBorder:'var(--border)'}],
+      faqs:FAQS.map((f,i)=>({q:f[0],a:f[1],open:s.faqOpen===i,rot:s.faqOpen===i?'180deg':'0deg',toggle:()=>this.setState({faqOpen:s.faqOpen===i?-1:i})})),
+      authCols:wide?'1fr 1fr':'1fr',authTitle:s.authMode==='signin'?'Welcome back':'Create your account',authSub:s.authMode==='signin'?'Sign in to your Slidecast workspace.':'Free plan, no card. Upgrade when you outgrow it.',authEmail:s.authEmail,authPw:s.authPw,setAuthEmail:e=>this.setState({authEmail:e.target.value,authError:''}),setAuthPw:e=>this.setState({authPw:e.target.value,authError:''}),authError:s.authError,authBusy:s.authBusy,authBtnOp:s.authBusy?.7:1,authBtnContent:s.authBusy?[spinner,'Signing in…']:(s.authMode==='signin'?'Sign in':'Create account'),
+      signIn:()=>{if(s.authBusy)return;if(!s.authEmail.includes('@')){this.setState({authError:'Enter a valid email address.'});return}this.setState({authBusy:true});setTimeout(()=>{this.setState({authBusy:false});this.go('dashboard')},900)},
+      switchAuth:()=>this.setState({authMode:s.authMode==='signin'?'signup':'signin',authError:''}),authSwitchText:s.authMode==='signin'?'New to Slidecast?':'Already have an account?',authSwitchCta:s.authMode==='signin'?'Create an account':'Sign in',
+      authSlides:[1,5,10].map((ti,i)=>{const t=TEMPLATES[ti];return{bg:t.bg,fg:t.fg,font:FONTS[t.font],headline:SEED_SLIDES[[0,6,7][i]].headline,mt:i===1?'-40px':'0'}}),
+      shellCols:wide?'240px 1fr':'1fr',
+      navItems:[['dashboard','Carousels','grid'],['templates','Templates','layout'],['settings','Settings','settings']].map(n=>({label:n[1],icon:wide?ICON(ICONS[n[2]],20):null,go:()=>this.go(n[0]),bg:s.screen===n[0]?'var(--hover)':'transparent',fg:s.screen===n[0]?'var(--t1)':'var(--t2)'})),
+      searchW:narrow?'140px':'280px',gridCols:narrow?'repeat(2,1fr)':mid?'repeat(3,1fr)':'repeat(4,1fr)',query:s.query,setQuery:e=>this.setState({query:e.target.value}),
+      loadingDash:s.loadingDash,showProjects:!s.loadingDash&&filtered.length>0,showEmpty:!s.loadingDash&&filtered.length===0,skel8:[1,2,3,4,5,6,7,8],
+      emptyText:q?`No carousels match “${s.query}”.`:'No carousels yet. Paste an idea and get 8 slides in under a minute.',emptyCta:q?'Clear search':'New carousel',emptyAction:()=>q?this.setState({query:''}):this.setState({screen:'editor',aiOpen:true}),
+      newCarousel:()=>this.setState({screen:'editor',aiOpen:true,aiText:''}),
+      filteredProjects:filtered.map(p=>{const t=TEMPLATES[p.tpl];return{...p,bg:t.bg,fg:t.fg,font:FONTS[t.font],headline:SEED_SLIDES[p.id%8].headline,statusFg:p.status==='Published'?'var(--t1)':p.status==='Scheduled'?'var(--accent)':'var(--t2)',statusBg:p.status==='Scheduled'?'var(--accent-soft)':'transparent',open:()=>{this.setState({projectName:p.title,tpl:p.tpl,scheme:null});this.go('editor')},key:e=>{if(e.key==='Enter'){this.setState({projectName:p.title,tpl:p.tpl,scheme:null});this.go('editor')}},del:e=>{e.stopPropagation();this.setState({confirm:{title:'Delete carousel?',body:`“${p.title}” and its ${p.count} slides will be permanently deleted.`,cta:'Delete carousel',run:()=>{const prev=s.projects;this.setState({projects:s.projects.filter(x=>x.id!==p.id),confirm:null});this.toast(`Deleted “${p.title}”`,()=>this.setState({projects:prev}))}}})}}}),
+      tplFilters:['All','Minimal','Bold','Editorial','Playful'].map(f=>({label:f,...seg(s.tplFilter===f),set:()=>this.setState({tplFilter:f})})),loadingTpl:s.loadingTpl,showTpl:!s.loadingTpl,
+      filteredTemplates:tplList.map(t=>{const h=hov===t.id;const f=h?s.tplFrame:0;return{...t,font:FONTS[t.font],hs:'16px',previewText:frames[f],frameKey:f,d1:f===0?1:.3,d2:f===1?1:.3,d3:f===2?1:.3,enter:()=>{clearInterval(this.hoverT);this.setState({tplHover:t.id,tplFrame:0});this.hoverT=setInterval(()=>this.setState(st=>({tplFrame:(st.tplFrame+1)%3})),800)},leave:()=>{clearInterval(this.hoverT);this.setState({tplHover:null,tplFrame:0})},use:()=>{this.setState({tpl:t.id,scheme:null});this.go('editor');this.toast(`Template “${t.name}” applied`)}}}),
+      settingsCols:mid?'1fr':'180px 1fr',settingsNavDir:mid?'row':'column',twoCols:narrow?'1fr':'1fr 1fr',presetCols:narrow?'1fr':'repeat(3,1fr)',
+      settingsTabs:[['profile','Profile'],['brand','Brand kit'],['billing','Billing']].map(t=>({label:t[1],set:()=>this.setState({settingsTab:t[0]}),bg:s.settingsTab===t[0]?'var(--hover)':'transparent',fg:s.settingsTab===t[0]?'var(--t1)':'var(--t2)'})),
+      stProfile:s.settingsTab==='profile',stBrand:s.settingsTab==='brand',stBilling:s.settingsTab==='billing',saveSettings:()=>this.toast('Profile saved'),
+      brandHandle:s.brandHandle,setHandle:e=>{this.setState({brandHandle:e.target.value});this.touch()},brandColors:s.brandColors,
+      presets:[{name:'Reyes Studio',font:'Geist',a:'#0A0A0A',b:'#F5F2EB',tpl:1,fp:'geist'},{name:'Founder voice',font:'Georgia',a:'#FFFDF7',b:'#1F1F1F',tpl:10,fp:'serif'},{name:'Launch week',font:'Helvetica',a:'#CCFF00',b:'#111111',tpl:8,fp:'grotesk'}].map(p=>({...p,apply:()=>{this.setState({tpl:p.tpl,fontPair:p.fp,scheme:null});this.touch();this.toast(`Preset “${p.name}” applied`)}})),
+      confirmRemoveBrand:()=>this.setState({confirm:{title:'Remove brand kit?',body:`The “Reyes Studio” brand kit — logo, ${s.brandHandle}, and 4 colors — will be removed from all carousels.`,cta:'Remove brand kit',run:()=>{this.setState({confirm:null});this.toast('Brand kit removed',()=>{})}}}),
+      invoices:INVOICES.map(i=>({...i,dl:()=>this.toast(`Downloading ${i.id}.pdf`)})),
+      projectName:s.projectName,setProjectName:e=>this.setState({projectName:e.target.value}),nameW:Math.max(80,Math.min(320,s.projectName.length*8+24))+'px',touch:()=>this.touch(),saveLabel,
+      editorCols:w<1100?'160px 1fr 260px':'200px 1fr 300px',slideCount:s.slides.length,pageLabel:`${s.active+1} / ${s.slides.length}`,
+      slideBg,slideFg,slideFont,slideJustify:tpl.justify,slideHw:tpl.hw,slideHs:hs,align:s.align,activeHeadline:a.headline,activeBody:a.body,activeType:a.type,activeKey:'h'+a.id,activeKeyB:'b'+a.id,slideTypeLabel:a.type,
+      progressDots:s.slides.map((_,i)=>({w:i===s.active?'40px':'12px',op:i===s.active?1:.35})),
+      canvasW:cw+'px',canvasH:(cw*1.25)+'px',canvasScale:cw/1080,mobileScale:Math.min(360,w-32)/1080,previewScale:Math.min(360,w*0.8)/1080,zoomLabel:Math.round(s.zoom*100)+'%',zoomIn:()=>this.setState({zoom:Math.min(2,+(s.zoom+0.1).toFixed(2))}),zoomOut:()=>this.setState({zoom:Math.max(0.4,+(s.zoom-0.1).toFixed(2))}),zoomReset:()=>this.setState({zoom:1}),
+      nextSlide:()=>this.nextSlide(),prevSlide:()=>this.prevSlide(),addSlide:()=>this.addSlide(),dupActive:()=>this.dup(s.active),delActive:()=>this.del(s.active),dragEnd:()=>this.setState({dragIdx:null,overIdx:null}),
+      railSlides:s.slides.map((sl,i)=>({n:i+1,headline:sl.headline,border:i===s.active?'var(--accent)':'var(--border)',op:s.dragIdx===i?.4:1,ty:s.dragIdx!=null&&s.overIdx===i&&s.dragIdx!==i?(s.dragIdx<i?'-6px':'6px'):'0',select:()=>this.setState({active:i}),dup:e=>{e.stopPropagation();this.dup(i)},del:e=>{e.stopPropagation();this.del(i)},dragStart:e=>{e.dataTransfer.effectAllowed='move';this.setState({dragIdx:i})},dragOver:e=>{e.preventDefault();if(s.overIdx!==i)this.setState({overIdx:i})},drop:e=>{e.preventDefault();const from=s.dragIdx;if(from==null||from===i)return;const n=[...s.slides];const [m]=n.splice(from,1);n.splice(i,0,m);this.setState({slides:n,active:i,dragIdx:null,overIdx:null});this.touch()}})),
+      editHeadline:e=>{const v=e.target.innerText.trim();if(v!==a.headline)this.upd({headline:v})},editBody:e=>{const v=e.target.innerText.trim();if(v!==a.body)this.upd({body:v})},focusEdit:e=>e.target.focus(),editHeadlineInput:e=>{if(e.target.value!==a.headline)this.upd({headline:e.target.value})},editBodyInput:e=>{if(e.target.value!==a.body)this.upd({body:e.target.value})},setType:e=>this.upd({type:e.target.value}),
+      inspTabs:[['content','Content'],['style','Style'],['brand','Brand']].map(t=>({label:t[1],set:()=>this.setState({tab:t[0]}),line:s.tab===t[0]?'var(--accent)':'transparent',fg:s.tab===t[0]?'var(--t1)':'var(--t2)'})),tabContent:s.tab==='content',tabStyle:s.tab==='style',tabBrand:s.tab==='brand',
+      styleTemplates:TEMPLATES.map(t=>({...t,font:FONTS[t.font],border:s.tpl===t.id&&s.scheme==null?'var(--accent)':'var(--border)',pick:()=>{this.setState({tpl:t.id,scheme:null});this.touch()}})),
+      fontPair:s.fontPair,setFontPair:e=>{this.setState({fontPair:e.target.value});this.touch()},
+      schemes:SCHEMES.map((c,i)=>({...c,border:s.scheme===i?'var(--accent)':'var(--border)',pick:()=>{this.setState({scheme:s.scheme===i?null:i});this.touch()}})),
+      aligns:['left','center','right'].map(al=>({label:al[0].toUpperCase()+al.slice(1),...seg(s.align===al),pick:()=>{this.setState({align:al});this.touch()}})),
+      openAi:()=>this.setState({aiOpen:true}),closeAi:()=>{if(!s.generating)this.setState({aiOpen:false})},aiOpen:s.aiOpen,aiText:s.aiText,setAiText:e=>this.setState({aiText:e.target.value}),aiCount:s.aiCount,setAiCount:e=>this.setState({aiCount:+e.target.value}),aiDisabled:s.aiText.trim().length<10,aiBtnOp:s.aiText.trim().length<10?.5:1,generate:()=>this.generate(),notGenerating:!s.generating,generating:s.generating,
+      tones:['Direct','Story','Educational','Contrarian'].map(t=>({label:t,...sel(s.aiTone===t),pick:()=>this.setState({aiTone:t})})),
+      genDone:s.genDone,genPct:Math.round(s.genDone/s.aiCount*100)+'%',genLabel:s.genDone===0?'Finding the hook…':s.genDone<s.aiCount?`Writing slide ${s.genDone+1}…`:'Applying brand kit…',
+      genSlots:Array.from({length:s.aiCount},(_,k)=>({t:k<s.genDone?GEN_HEADS[k%GEN_HEADS.length]:'',bg:k<s.genDone?slideBg:'var(--shell)',fg:slideFg,cls:k<s.genDone?'fade':(k===s.genDone?'skel':'')})),
+      openExport:()=>this.setState({exportOpen:true}),closeExport:()=>this.setState({exportOpen:false}),exportOpen:s.exportOpen,exporting:s.exporting,exportBtnOp:s.exporting?.8:1,exportBtnContent:s.exporting?[spinner,'Rendering slides…']:`Download all as .zip`,
+      formats:[{label:'PNG',desc:`${s.slides.length} files · Instagram`},{label:'PDF',desc:'1 file · LinkedIn'}].map(f=>({...f,...sel(s.fmt===f.label),pick:()=>this.setState({fmt:f.label})})),
+      sizes:[{label:'Post',dim:'1080 × 1350'},{label:'Story',dim:'1080 × 1920'}].map(z=>({...z,...sel(s.size===z.label),pick:()=>this.setState({size:z.label})})),
+      qualities:['1x','2x','3x'].map(qq=>({label:qq,...seg(s.quality===qq),pick:()=>this.setState({quality:qq})})),
+      exportSummary:`${fileCount} ${s.fmt} · ${s.size==='Post'?'1080×1350':'1080×1920'} · ${s.quality}`,exportSize:`${mb} MB`,
+      doExport:()=>{if(s.exporting)return;this.setState({exporting:true});setTimeout(()=>{this.setState({exporting:false,exportOpen:false});this.toast(`${s.projectName}.zip downloaded · ${fileCount} ${s.fmt}`)},1600)},
+      schedule:()=>{this.setState({exportOpen:false});this.toast('Scheduled via Buffer · Tue 9:00')},share:()=>this.toast('Share link copied'),togglePreview:()=>this.setState({previewOpen:!s.previewOpen}),previewOpen:s.previewOpen,
+      confirm:!!s.confirm,confirmTitle:s.confirm?.title,confirmBody:s.confirm?.body,confirmCta:s.confirm?.cta,cancelConfirm:()=>this.setState({confirm:null}),doConfirm:()=>s.confirm&&s.confirm.run(),
+      cmdOpen:s.cmdOpen,closeCmd:()=>this.setState({cmdOpen:false}),cmdQuery:s.cmdQuery,setCmdQuery:e=>this.setState({cmdQuery:e.target.value}),cmdKey:e=>{if(e.key==='Enter'&&cmdAll[0])cmdAll[0].run()},cmdItems:cmdAll.map((c,i)=>({...c,bg:i===0?'var(--hover)':'transparent'})),cmdEmpty:cmdAll.length===0,
+      toasts:s.toasts.map(t=>({...t,close:()=>this.dismiss(t.id)}))
+    };
+  }
+}
+</script>
+</body>
+</html>
