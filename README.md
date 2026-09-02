@@ -1,25 +1,64 @@
-# CODING AGENTS: READ THIS FIRST
+# Slidecast
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+Turn one idea into an Instagram carousel in under a minute. Paste a tweet, a
+note, or 2,000 words → get 5–10 branded slides → edit on the canvas → export
+1080×1350 PNGs (zipped, with a caption file) or a LinkedIn-ready PDF.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+Built with Next.js 15 (App Router), TypeScript, Tailwind v4, shadcn-style
+primitives on Radix, Lucide, Framer Motion and dnd-kit.
 
-## What you should do — IMPORTANT
+## Screens
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+| Route        | What it does                                                                                                    |
+| ------------ | --------------------------------------------------------------------------------------------------------------- |
+| `/`          | Marketing page — live hero carousel, three feature sections built from real UI, pricing, FAQ                    |
+| `/signin`, `/signup` | Split-layout auth (mocked — any email signs in)                                                         |
+| `/dashboard` | Your carousels: thumbnails, status chips, search, duplicate, delete with undo                                    |
+| `/editor`    | The core: slide rail (drag to reorder), 1080×1350 canvas with double-click editing, Content / Style / Brand inspector |
+| `/templates` | 20 templates across Minimal / Bold / Editorial / Playful; hover pages through three slides                      |
+| `/settings`  | Profile, accent colour, brand kit (logo, handle, colours, presets), billing                                      |
+| `/share#…`   | Public read-only viewer — the whole carousel travels in the URL fragment, no server needed                      |
 
-**Read `project/Slidecast.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+Keyboard: `⌘K` command palette · `←/→` switch slides · `⌘S` save · `⌘E` export · `Esc` closes overlays.
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+## What is real
 
-## About the design files
+- **Export** renders every slide with the Canvas 2D API from the same layout
+  constants the on-screen canvas uses, then writes a dependency-free ZIP
+  (`lib/zip.ts`) or a minimal PDF with JPEG pages (`lib/pdf.ts`).
+- **Brand kit** — uploaded logos are downscaled to a data URL and printed in the
+  footer of every slide, on screen and in exports. Brand colours become slide
+  colour schemes. Accent colour re-tokens the whole UI at runtime.
+- **Generation** drafts hook / points / CTA from the pasted text, in the chosen
+  tone, with your handle on the last slide (`lib/generator.ts`). It runs
+  locally with a streamed reveal — swap in a model call behind the same function
+  when you add a backend.
+- **Persistence** — the workspace (carousels, brand kit, presets, accent) lives
+  in `localStorage` under a versioned key. There is no backend, auth, or
+  database yet by design.
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+## Design tokens
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+Every UI colour comes from `src/app/tokens.css`. Slide artwork colours
+(templates, brand colours, schemes) live in `src/lib/data.ts` — they are
+content, not chrome. Dark mode is the same token set inverted under
+`[data-theme="dark"]`.
 
-## Bundle contents
+## Run
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `Design system setup pending` project files (HTML prototypes, assets, components)
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm run build && npm start
+npm run typecheck
+```
+
+## Deploy
+
+The app is a static-capable Next.js build with no environment variables.
+`vercel` (or connecting the repo in the Vercel dashboard) deploys it as-is.
+
+## Design handoff
+
+The original Claude Design bundle (prototype, transcript) is kept in
+`design-handoff/` for reference.

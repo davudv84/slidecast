@@ -1,0 +1,70 @@
+/* ---------------------------------------------------------------------------
+ * Slidecast design tokens — the single source of truth for colour.
+ * No hard-coded hex values are allowed anywhere else in the codebase.
+ * Dark mode is the same token set, inverted, under [data-theme="dark"].
+ * ------------------------------------------------------------------------- */
+
+:root {
+  /* Surfaces */
+  --shell: #fafafa;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --hover: #f4f4f5;
+  --skel: #eeeeef;
+
+  /* Text */
+  --t1: #0a0a0a;
+  --t2: #525252;
+  --t3: #a3a3a3;
+
+  /* Accent — primary buttons, active states, focus rings, selected slide */
+  --accent: #4f46e5;
+  --accent-h: #4338ca;
+  --accent-soft: rgba(79, 70, 229, 0.08);
+  --accent-fg: #ffffff;
+
+  /* Inverted surface — avatars, toasts, auth visual */
+  --inv: #0a0a0a;
+  --inv-t: #ffffff;
+
+  /* Destructive */
+  --danger: #dc2626;
+  --danger-fg: #ffffff;
+
+  /* Overlay scrims */
+  --scrim: rgba(0, 0, 0, 0.4);
+  --scrim-soft: rgba(0, 0, 0, 0.3);
+  --scrim-strong: rgba(0, 0, 0, 0.85);
+  --on-scrim: #ffffff;
+  --on-scrim-muted: rgba(255, 255, 255, 0.5);
+  --on-scrim-border: rgba(255, 255, 255, 0.2);
+  --toast-btn-border: rgba(128, 128, 128, 0.4);
+  --toast-btn-hover: rgba(128, 128, 128, 0.2);
+
+  /* Elevation — floating elements only. Cards use borders. */
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+
+  /* Radii */
+  --radius-control: 6px;
+  --radius-card: 10px;
+  --radius-modal: 14px;
+}
+
+[data-theme="dark"] {
+  --shell: #0a0a0a;
+  --surface: #171717;
+  --border: #262626;
+  --hover: #222222;
+  --skel: #222222;
+
+  --t1: #fafafa;
+  --t2: #a3a3a3;
+  --t3: #6b6b6b;
+
+  --accent-soft: rgba(99, 102, 241, 0.16);
+
+  --inv: #fafafa;
+  --inv-t: #0a0a0a;
+
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
