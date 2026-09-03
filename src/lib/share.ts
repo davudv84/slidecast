@@ -1,5 +1,6 @@
 import { newId } from "./id";
-import type { Align, BrandKit, Doc, FontPair, Scheme, SlideType } from "./types";
+import { migrateDoc } from "./data";
+import type { Align, BrandKit, Bullet, Doc, FontPair, Scheme, SlideType } from "./types";
 
 /**
  * Share links carry the whole carousel in the URL fragment, so a viewer needs
@@ -7,14 +8,19 @@ import type { Align, BrandKit, Doc, FontPair, Scheme, SlideType } from "./types"
  */
 
 interface SharePayload {
-  v: 1;
+  v: 1 | 2;
   t: string;
-  s: [SlideType, string, string][];
+  s: [SlideType, string, string, Bullet[]?][];
   tpl: number;
   f: FontPair;
   al: Align;
   sc: Scheme | null;
   h: string;
+  /** v2: accent, header flag, swipe hint, "Name | brand" line. */
+  ac?: string | null;
+  hd?: boolean;
+  sw?: string;
+  n?: string;
 }
 
 function toBase64Url(text: string) {
@@ -32,46 +38,63 @@ function fromBase64Url(data: string) {
   return new TextDecoder().decode(bytes);
 }
 
-export function encodeShare(doc: Doc, brand: BrandKit) {
+export function encodeShare(doc: Doc, brand: BrandKit, name: string) {
   const payload: SharePayload = {
-    v: 1,
+    v: 2,
     t: doc.title,
-    s: doc.slides.map((s) => [s.type, s.headline, s.body]),
+    s: doc.slides.map((s) =>
+      s.bullets?.length ? [s.type, s.headline, s.body, s.bullets] : [s.type, s.headline, s.body],
+    ),
     tpl: doc.templateId,
     f: doc.fontPair,
     al: doc.align,
     sc: doc.scheme,
     h: brand.handle,
+    ac: doc.accent,
+    hd: doc.header,
+    sw: doc.swipeHint,
+    n: name,
   };
   return toBase64Url(JSON.stringify(payload));
 }
 
-export function decodeShare(hash: string): { doc: Doc; handle: string } | null {
+export interface SharedCarousel {
+  doc: Doc;
+  handle: string;
+  name: string;
+}
+
+export function decodeShare(hash: string): SharedCarousel | null {
   try {
     const raw = hash.replace(/^#/, "");
     if (!raw) return null;
     const p = JSON.parse(fromBase64Url(raw)) as SharePayload;
-    if (p.v !== 1 || !Array.isArray(p.s)) return null;
+    if ((p.v !== 1 && p.v !== 2) || !Array.isArray(p.s)) return null;
     const now = Date.now();
     return {
       handle: p.h,
-      doc: {
+      name: p.n ?? p.h,
+      doc: migrateDoc({
         id: newId("shared"),
         title: p.t,
-        slides: p.s.map(([type, headline, body]) => ({
+        slides: p.s.map(([type, headline, body, bullets]) => ({
           id: newId("s"),
           type,
           headline,
           body,
+          ...(bullets ? { bullets } : {}),
         })),
         templateId: p.tpl,
         scheme: p.sc ?? null,
+        accent: p.ac ?? null,
         fontPair: p.f,
         align: p.al,
+        header: p.hd,
+        swipeHint: p.sw,
         status: "Draft",
         createdAt: now,
         updatedAt: now,
-      },
+      }),
     };
   } catch {
     return null;

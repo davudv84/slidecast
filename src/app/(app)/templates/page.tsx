@@ -10,7 +10,39 @@ import {
 } from "@/lib/data";
 import { Segmented } from "@/components/ui/segmented";
 import { Skeleton } from "@/components/ui/misc";
-import type { Template, TemplateStyle } from "@/lib/types";
+import { SlidePreview } from "@/components/slide-preview";
+import type { SlideStyle } from "@/lib/doc-style";
+import type { Slide, Template, TemplateStyle } from "@/lib/types";
+
+const FRAME_SLIDES: Slide[] = [
+  { id: "tpl-0", type: "hook", headline: TEMPLATE_HOVER_FRAMES[0], body: "The math nobody tells you about consistency." },
+  {
+    id: "tpl-1",
+    type: "list",
+    headline: "What to *remember*",
+    body: "",
+    bullets: [
+      { title: "One idea per slide", text: "Cut until it fits." },
+      { title: "Saves beat likes", text: "Write for the screenshot." },
+    ],
+  },
+  { id: "tpl-2", type: "cta", headline: TEMPLATE_HOVER_FRAMES[2], body: "Follow for one system a week." },
+];
+
+function templateStyle(t: Template): SlideStyle {
+  return {
+    bg: t.bg,
+    fg: t.fg,
+    accent: t.accent,
+    fontPair: t.font,
+    fontFamily: FONTS[t.font],
+    weight: t.weight,
+    justify: t.justify,
+    align: "left",
+    header: true,
+    swipeHint: "Swipe",
+  };
+}
 
 type Filter = (typeof TEMPLATE_FILTERS)[number];
 
@@ -112,38 +144,13 @@ function TemplateCard({ template }: { template: Template }) {
       }}
       className="flex cursor-pointer flex-col overflow-hidden rounded-card border border-line bg-surface transition-colors duration-150 ease-out hover:border-t3"
     >
-      <div
-        className="relative flex flex-col overflow-hidden"
-        style={{
-          aspectRatio: "1080 / 1350",
-          background: template.bg,
-          color: template.fg,
-          fontFamily: FONTS[template.font],
-          padding: "14%",
-          justifyContent: template.justify,
-        }}
-      >
-        <div
-          key={frame}
-          className="anim-fade"
-          style={{
-            fontSize: 16,
-            fontWeight: template.weight,
-            letterSpacing: "-0.03em",
-            lineHeight: 1.1,
-            textWrap: "pretty",
-          }}
-        >
-          {TEMPLATE_HOVER_FRAMES[frame]}
-        </div>
-        <div className="absolute bottom-2.5 left-0 right-0 flex justify-center gap-1">
-          {TEMPLATE_HOVER_FRAMES.map((_, i) => (
-            <span
-              key={i}
-              className="h-[3px] w-3 rounded-sm bg-current transition-opacity duration-150 ease-out"
-              style={{ opacity: i === frame ? 1 : 0.3 }}
-            />
-          ))}
+      <div className="relative overflow-hidden">
+        <div key={frame} className="anim-fade">
+          <SlidePreview
+            slide={FRAME_SLIDES[frame]}
+            style={templateStyle(template)}
+            chrome={app.chromeFor(frame, FRAME_SLIDES.length)}
+          />
         </div>
       </div>
       <div className="flex items-center justify-between border-t border-line p-3 sm:p-3.5">

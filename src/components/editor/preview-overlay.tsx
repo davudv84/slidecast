@@ -31,12 +31,7 @@ export function PreviewOverlay({ viewportWidth }: { viewportWidth: number }) {
               slide={app.activeSlide}
               style={app.style}
               width={width}
-              chrome={{
-                handle: app.brand.handle,
-                logo: app.brand.logo,
-                index: app.active,
-                total: app.doc.slides.length,
-              }}
+              chrome={app.chromeFor(app.active)}
             />
           </div>
           <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2 text-[13px] text-on-scrim">

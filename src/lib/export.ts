@@ -3,12 +3,15 @@ import { buildPdf, type PdfPage } from "./pdf";
 import { canvasToBlob, loadImage, renderSlide } from "./render-slide";
 import { SLIDE_SIZES } from "./slide-layout";
 import { buildZip, type ZipEntry } from "./zip";
+import { avatarText } from "./initials";
+import { stripRich } from "./rich-text";
 import type {
   BrandKit,
   Doc,
   ExportFormat,
   ExportQuality,
   ExportSize,
+  Profile,
 } from "./types";
 
 export const QUALITY_SCALE: Record<ExportQuality, number> = {
@@ -20,6 +23,7 @@ export const QUALITY_SCALE: Record<ExportQuality, number> = {
 export interface ExportRequest {
   doc: Doc;
   brand: BrandKit;
+  profile: Profile;
   format: ExportFormat;
   size: ExportSize;
   quality: ExportQuality;
@@ -58,12 +62,15 @@ async function ensureFonts(stack: string) {
 
 /** The post caption — every slide's copy in order, ready to paste. */
 function captionText(doc: Doc, brand: BrandKit) {
-  const lines = doc.slides.map((s, i) => `${i + 1}. ${s.headline}\n${s.body}`);
+  const lines = doc.slides.map((s, i) => {
+    const bullets = (s.bullets ?? []).map((b) => `  • ${b.title}${b.text ? ` — ${b.text}` : ""}`);
+    return [`${i + 1}. ${stripRich(s.headline)}`, s.body, ...bullets].filter(Boolean).join("\n");
+  });
   return `${doc.title}\n\n${lines.join("\n\n")}\n\n${brand.handle}\n`;
 }
 
 export async function exportCarousel(req: ExportRequest): Promise<ExportResult> {
-  const { doc, brand, format, size, quality, onProgress } = req;
+  const { doc, brand, profile, format, size, quality, onProgress } = req;
   const style = { ...docStyle(doc), fontFamily: resolveFontFamily(docStyle(doc).fontFamily) };
   const scale = QUALITY_SCALE[quality];
   const total = doc.slides.length;
@@ -72,6 +79,13 @@ export async function exportCarousel(req: ExportRequest): Promise<ExportResult> 
   onProgress?.(0, total, "Loading fonts…");
   await ensureFonts(style.fontFamily);
   const logo = brand.logo ? await loadImage(brand.logo).catch(() => null) : null;
+  const chromeBase = {
+    handle: brand.handle,
+    name: brand.name ? `${profile.name} | ${brand.name}` : profile.name,
+    initials: avatarText(brand.name, profile.name),
+    logo,
+    total,
+  };
 
   if (format === "PNG") {
     const entries: ZipEntry[] = [];
@@ -82,7 +96,7 @@ export async function exportCarousel(req: ExportRequest): Promise<ExportResult> 
         style,
         size,
         scale,
-        chrome: { handle: brand.handle, logo, index: i, total },
+        chrome: { ...chromeBase, index: i },
       });
       const blob = await canvasToBlob(canvas, "image/png");
       entries.push({
@@ -109,7 +123,7 @@ export async function exportCarousel(req: ExportRequest): Promise<ExportResult> 
       style,
       size,
       scale,
-      chrome: { handle: brand.handle, logo, index: i, total },
+      chrome: { ...chromeBase, index: i },
     });
     const blob = await canvasToBlob(canvas, "image/jpeg", 0.92);
     pages.push({

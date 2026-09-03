@@ -1,4 +1,5 @@
-import type { Workspace } from "./types";
+import { migrateDoc } from "./data";
+import type { Doc, Workspace } from "./types";
 
 const KEY = "slidecast:workspace:v1";
 
@@ -9,7 +10,11 @@ export function loadWorkspace(): Workspace | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<Workspace>;
     if (parsed.version !== 1 || !Array.isArray(parsed.docs)) return null;
-    return parsed as Workspace;
+    // Older saves predate accent / header / swipe-hint fields.
+    const docs = (parsed.docs as Partial<Doc>[])
+      .filter((d): d is Doc => !!d && typeof d.id === "string" && Array.isArray(d.slides))
+      .map((d) => migrateDoc(d));
+    return { ...(parsed as Workspace), docs, channels: parsed.channels ?? [] };
   } catch {
     return null;
   }

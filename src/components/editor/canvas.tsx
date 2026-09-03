@@ -22,12 +22,7 @@ export function EditorCanvas({ viewportWidth }: { viewportWidth: number }) {
             editable
             onHeadlineChange={(headline) => app.updateActive({ headline })}
             onBodyChange={(body) => app.updateActive({ body })}
-            chrome={{
-              handle: app.brand.handle,
-              logo: app.brand.logo,
-              index: app.active,
-              total: app.doc.slides.length,
-            }}
+            chrome={app.chromeFor(app.active)}
             className="rounded-[4px] transition-[width,height] duration-200 ease-out"
           />
         </div>
@@ -62,7 +57,7 @@ export function EditorCanvas({ viewportWidth }: { viewportWidth: number }) {
       </div>
 
       <span className="absolute right-4 top-3 text-xs text-t3">
-        1080 × 1350 · Double‑click text to edit
+        1080 × 1350 · Double‑click text to edit · *word* highlights it
       </span>
     </section>
   );

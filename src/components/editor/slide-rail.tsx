@@ -19,7 +19,9 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Copy, Plus, Trash2 } from "lucide-react";
 import { useApp } from "../app-provider";
+import { SlidePreview } from "../slide-preview";
 import { Button } from "../ui/button";
+import { stripRich } from "@/lib/rich-text";
 import type { Slide } from "@/lib/types";
 
 export function SlideRail() {
@@ -83,7 +85,6 @@ function RailItem({ slide, index }: { slide: Slide; index: number }) {
   });
 
   const isActive = index === app.active;
-  const { style } = app;
 
   return (
     <div
@@ -104,31 +105,16 @@ function RailItem({ slide, index }: { slide: Slide; index: number }) {
         {...listeners}
         role="button"
         tabIndex={0}
-        aria-label={`Slide ${index + 1}: ${slide.headline}`}
+        aria-label={`Slide ${index + 1}: ${stripRich(slide.headline)}`}
         aria-current={isActive ? "true" : undefined}
         onClick={() => app.setActive(index)}
         onKeyDown={(e) => {
           if (e.key === "Enter") app.setActive(index);
         }}
-        className="relative flex-1 cursor-grab overflow-hidden rounded-control border-2 transition-colors duration-150 ease-out active:cursor-grabbing"
-        style={{
-          aspectRatio: "1080 / 1350",
-          borderColor: isActive ? "var(--accent)" : "var(--border)",
-          background: style.bg,
-          color: style.fg,
-          fontFamily: style.fontFamily,
-          padding: "10%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: style.justify,
-          textAlign: style.align,
-          fontSize: 9,
-          fontWeight: style.weight,
-          letterSpacing: "-0.03em",
-          lineHeight: 1.1,
-        }}
+        className="relative flex-1 cursor-grab overflow-hidden rounded-control border-2 transition-colors duration-150 ease-out hover:border-t3 active:cursor-grabbing"
+        style={{ borderColor: isActive ? "var(--accent)" : "var(--border)" }}
       >
-        {slide.headline}
+        <SlidePreview slide={slide} style={app.style} chrome={app.chromeFor(index)} />
 
         <div className="absolute right-1 top-1 flex gap-0.5 opacity-0 transition-opacity duration-150 ease-out focus-within:opacity-100 group-hover:opacity-100">
           <button

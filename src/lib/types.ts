@@ -1,6 +1,6 @@
 export type FontPair = "geist" | "serif" | "mono" | "grotesk";
 
-export type TemplateStyle = "Minimal" | "Bold" | "Editorial" | "Playful";
+export type TemplateStyle = "Studio" | "Minimal" | "Bold" | "Editorial" | "Playful";
 
 export type Justify = "flex-start" | "center" | "flex-end";
 
@@ -10,6 +10,8 @@ export interface Template {
   style: TemplateStyle;
   bg: string;
   fg: string;
+  /** Highlight colour for the accent word, bullets and swipe hint. */
+  accent: string;
   font: FontPair;
   weight: number;
   justify: Justify;
@@ -24,11 +26,20 @@ export interface Scheme {
 
 export type SlideType = "hook" | "point" | "quote" | "list" | "cta";
 
+/** One row of a list slide: bold title, muted explanation. */
+export interface Bullet {
+  title: string;
+  text: string;
+}
+
 export interface Slide {
   id: string;
   type: SlideType;
+  /** Wrap a word in *asterisks* to render it as the accent word. */
   headline: string;
   body: string;
+  /** Only rendered on `list` slides. */
+  bullets?: Bullet[];
 }
 
 export type DocStatus = "Draft" | "Scheduled" | "Published";
@@ -40,11 +51,31 @@ export interface Doc {
   slides: Slide[];
   templateId: number;
   scheme: Scheme | null;
+  /** Overrides the template accent when set. */
+  accent: string | null;
   fontPair: FontPair;
   align: Align;
+  /** Tweet-style header: avatar, name and handle on every slide. */
+  header: boolean;
+  /** Footer hint on every slide but the last, e.g. "Swipe". Empty hides it. */
+  swipeHint: string;
+  /** Post caption. Empty means "use the suggested caption". */
+  caption: string;
   status: DocStatus;
+  /** Set when the carousel was published through a connected channel. */
+  publishedAt?: number;
+  publishedTo?: string;
   createdAt: number;
   updatedAt: number;
+}
+
+/** A social account the creator has connected for publishing. */
+export interface Channel {
+  id: string;
+  platform: "instagram";
+  handle: string;
+  displayName: string;
+  connectedAt: number;
 }
 
 export interface BrandKit {
@@ -70,6 +101,7 @@ export interface Preset {
   templateId: number;
   font: FontPair;
   scheme: Scheme | null;
+  accent?: string | null;
 }
 
 /** Everything persisted for a signed-in creator. */
@@ -80,6 +112,7 @@ export interface Workspace {
   profile: Profile;
   presets: Preset[];
   accent: string;
+  channels: Channel[];
   lastOpenedId: string | null;
 }
 

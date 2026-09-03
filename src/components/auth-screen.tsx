@@ -4,13 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DEFAULT_PROFILE, FONTS, SEED_SLIDES, TEMPLATES } from "@/lib/data";
+import { stripRich } from "@/lib/rich-text";
 import { Button } from "./ui/button";
 import { Field, Input } from "./ui/input";
 import { Wordmark } from "./brand";
 
 const VISUAL_SLIDES = [1, 5, 10].map((templateId, i) => ({
   template: TEMPLATES[templateId],
-  headline: SEED_SLIDES[[0, 6, 7][i]][1],
+  headline: stripRich(SEED_SLIDES[[0, 6, 7][i]][1]),
   offset: i === 1 ? -40 : 0,
 }));
 

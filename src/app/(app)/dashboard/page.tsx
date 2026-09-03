@@ -8,7 +8,7 @@ import { relativeTime } from "@/lib/time";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge, Skeleton } from "@/components/ui/misc";
-import { SlideThumb } from "@/components/slide-canvas";
+import { SlidePreview } from "@/components/slide-preview";
 import { cn } from "@/lib/utils";
 import type { Doc } from "@/lib/types";
 
@@ -90,7 +90,7 @@ export default function DashboardPage() {
 function ProjectCard({ doc }: { doc: Doc }) {
   const app = useApp();
   const style = docStyle(doc);
-  const headline = doc.slides[0]?.headline ?? "";
+  const cover = doc.slides[0];
 
   const open = () => app.openDoc(doc.id);
 
@@ -117,17 +117,11 @@ function ProjectCard({ doc }: { doc: Doc }) {
       }}
       className="group relative flex cursor-pointer flex-col overflow-hidden rounded-card border border-line bg-surface transition-colors duration-150 ease-out hover:border-t3"
     >
-      <SlideThumb
-        headline={headline}
-        bg={style.bg}
-        fg={style.fg}
-        fontFamily={style.fontFamily}
-        justify={style.justify}
-        weight={style.weight}
-        align={style.align}
-        fontSize={15}
-        padding="14%"
-      />
+      {cover ? (
+        <SlidePreview slide={cover} style={style} chrome={app.chromeFor(0, doc.slides.length)} />
+      ) : (
+        <div className="bg-shell" style={{ aspectRatio: "1080 / 1350" }} />
+      )}
       <div className="flex flex-col gap-1.5 border-t border-line p-3 sm:p-3.5">
         <div className="flex items-center justify-between gap-2">
           <span className="truncate font-medium">{doc.title}</span>

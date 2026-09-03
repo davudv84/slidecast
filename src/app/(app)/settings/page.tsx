@@ -10,12 +10,14 @@ import { Field, Input } from "@/components/ui/input";
 import { Badge, Meter, Switch } from "@/components/ui/misc";
 import { LogoUploader } from "@/components/logo-uploader";
 import { BrandColors } from "@/components/brand-colors";
+import { ChannelList } from "@/components/connect-channel";
 import { initials } from "@/lib/initials";
 import { cn } from "@/lib/utils";
 
 const TABS = [
   { id: "profile", label: "Profile" },
   { id: "brand", label: "Brand kit" },
+  { id: "channels", label: "Channels" },
   { id: "billing", label: "Billing" },
 ] as const;
 
@@ -51,6 +53,7 @@ export default function SettingsPage() {
         <div className="flex min-w-0 flex-col gap-6">
           {tab === "profile" ? <ProfileCards /> : null}
           {tab === "brand" ? <BrandCard /> : null}
+          {tab === "channels" ? <ChannelsCard /> : null}
           {tab === "billing" ? <BillingCards /> : null}
         </div>
       </div>
@@ -79,6 +82,21 @@ function Card({
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h2 className="m-0 text-base font-semibold tracking-[-0.01em]">{children}</h2>;
+}
+
+/* --------------------------------------------------------------- channels */
+
+function ChannelsCard() {
+  return (
+    <Card className="anim-fade">
+      <SectionTitle>Connected accounts</SectionTitle>
+      <p className="m-0 text-[13px] text-t2">
+        Publish carousels with their caption straight from the editor. Instagram Professional
+        and Creator accounts are supported.
+      </p>
+      <ChannelList />
+    </Card>
+  );
 }
 
 /* ---------------------------------------------------------------- profile */

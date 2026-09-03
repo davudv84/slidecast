@@ -4,20 +4,20 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useApp } from "@/components/app-provider";
-import { decodeShare } from "@/lib/share";
+import { decodeShare, type SharedCarousel } from "@/lib/share";
 import { docStyle } from "@/lib/doc-style";
+import { avatarText } from "@/lib/initials";
 import { useViewport } from "@/lib/use-viewport";
 import { useSwipe } from "@/lib/use-swipe";
 import { SlideCanvas } from "@/components/slide-canvas";
 import { Wordmark } from "@/components/brand";
 import { Button } from "@/components/ui/button";
-import type { Doc } from "@/lib/types";
 
 /** Public, read-only viewer for a carousel encoded in the URL fragment. */
 export default function SharePage() {
   const app = useApp();
   const { width, ready } = useViewport();
-  const [shared, setShared] = useState<{ doc: Doc; handle: string } | null | undefined>(undefined);
+  const [shared, setShared] = useState<SharedCarousel | null | undefined>(undefined);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -58,9 +58,11 @@ export default function SharePage() {
     );
   }
 
-  const { doc, handle } = shared;
+  const { doc, handle, name } = shared;
   const slide = doc.slides[Math.min(index, total - 1)];
   const slideWidth = Math.min(420, width - 32);
+  const [personName, brandName = ""] = name.split("|").map((s) => s.trim());
+  const chrome = { handle, name, initials: avatarText(brandName, personName), index, total };
 
   return (
     <div className="flex min-h-screen flex-col bg-shell">
@@ -84,7 +86,7 @@ export default function SharePage() {
             slide={slide}
             style={docStyle(doc)}
             width={slideWidth}
-            chrome={{ handle, index, total }}
+            chrome={chrome}
           />
         </div>
 

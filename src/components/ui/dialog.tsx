@@ -9,7 +9,7 @@ import { Button } from "./button";
 
 const EASE = [0.2, 0.8, 0.2, 1] as const;
 
-type Placement = "center" | "top" | "right";
+type Placement = "center" | "top" | "right" | "bottom";
 
 const panelMotion: Record<
   Placement,
@@ -38,12 +38,19 @@ const panelMotion: Record<
     exit: { x: "100%" },
     duration: 0.2,
   },
+  bottom: {
+    initial: { y: "100%" },
+    animate: { y: 0 },
+    exit: { y: "100%" },
+    duration: 0.24,
+  },
 };
 
 const wrapperClass: Record<Placement, string> = {
   center: "fixed inset-0 grid place-items-center p-4",
   top: "fixed inset-0 flex items-start justify-center px-4 pt-[12vh]",
   right: "fixed inset-0 flex justify-end",
+  bottom: "fixed inset-0 flex items-end justify-center",
 };
 
 export function Modal({

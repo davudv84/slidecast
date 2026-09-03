@@ -7,6 +7,7 @@ import { Search, X } from "lucide-react";
 import { useApp } from "./app-provider";
 import { Modal, ModalHeader } from "./ui/dialog";
 import { Button } from "./ui/button";
+import { ConnectChannelDialog } from "./connect-channel";
 import { cn } from "@/lib/utils";
 
 export function GlobalChrome() {
@@ -14,6 +15,7 @@ export function GlobalChrome() {
     <>
       <CommandPalette />
       <ConfirmDialog />
+      <ConnectChannelDialog />
       <Toaster />
       <Shortcuts />
     </>
@@ -133,9 +135,21 @@ function CommandPalette() {
         kbd: "⌘E",
         run: () => {
           if (pathname !== "/editor") router.push("/editor");
+          app.setExportTab("download");
           app.setExportOpen(true);
         },
       },
+      {
+        group: "Editor",
+        label: "Publish to Instagram…",
+        kbd: "",
+        run: () => {
+          if (pathname !== "/editor") router.push("/editor");
+          app.setExportTab("publish");
+          app.setExportOpen(true);
+        },
+      },
+      { group: "Account", label: "Connect Instagram", kbd: "", run: () => app.setConnectOpen(true) },
       {
         group: "Editor",
         label: "Add slide",

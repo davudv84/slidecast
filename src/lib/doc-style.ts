@@ -5,11 +5,14 @@ import type { Align, Doc, FontPair, Justify } from "./types";
 export interface SlideStyle {
   bg: string;
   fg: string;
+  accent: string;
   fontPair: FontPair;
   fontFamily: string;
   weight: number;
   justify: Justify;
   align: Align;
+  header: boolean;
+  swipeHint: string;
 }
 
 export function docStyle(doc: Doc): SlideStyle {
@@ -17,11 +20,14 @@ export function docStyle(doc: Doc): SlideStyle {
   return {
     bg: doc.scheme?.bg ?? template.bg,
     fg: doc.scheme?.fg ?? template.fg,
+    accent: doc.accent ?? template.accent,
     fontPair: doc.fontPair,
     fontFamily: FONTS[doc.fontPair],
     weight: template.weight,
     justify: template.justify,
     align: doc.align,
+    header: doc.header ?? true,
+    swipeHint: doc.swipeHint ?? "Swipe",
   };
 }
 

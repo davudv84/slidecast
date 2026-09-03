@@ -1,6 +1,7 @@
 import { newId } from "./id";
 import type {
   BrandKit,
+  Bullet,
   Doc,
   DocStatus,
   Faq,
@@ -40,37 +41,40 @@ type RawTemplate = [
   style: Template["style"],
   bg: string,
   fg: string,
+  accent: string,
   font: FontPair,
   weight: number,
   justify: Template["justify"],
 ];
 
 /**
- * 20 slide templates across four styles. `bg`/`fg` are slide artwork, not UI
- * chrome, so they live here rather than in the theme tokens — the same way a
- * creator's uploaded brand colours do.
+ * 22 slide templates across five styles. Colours here are slide artwork, not
+ * UI chrome, so they live in data rather than in the theme tokens — the same
+ * way a creator's uploaded brand colours do.
  */
 const RAW_TEMPLATES: RawTemplate[] = [
-  ["Mono", "Minimal", "#FFFFFF", "#0A0A0A", "geist", 600, "flex-end"],
-  ["Ink", "Minimal", "#0A0A0A", "#FAFAFA", "geist", 600, "flex-end"],
-  ["Paper", "Minimal", "#F5F2EB", "#1C1917", "serif", 500, "center"],
-  ["Slate", "Minimal", "#1E293B", "#F8FAFC", "geist", 500, "flex-end"],
-  ["Fog", "Minimal", "#E7E5E4", "#292524", "grotesk", 500, "flex-start"],
-  ["Signal", "Bold", "#4F46E5", "#FFFFFF", "grotesk", 700, "flex-end"],
-  ["Tar", "Bold", "#111111", "#FDE047", "grotesk", 700, "center"],
-  ["Cherry", "Bold", "#B91C1C", "#FFF1F2", "grotesk", 700, "flex-end"],
-  ["Volt", "Bold", "#CCFF00", "#111111", "mono", 700, "flex-start"],
-  ["Cobalt", "Bold", "#1D4ED8", "#DBEAFE", "geist", 700, "flex-end"],
-  ["Journal", "Editorial", "#FFFDF7", "#1F1F1F", "serif", 500, "flex-start"],
-  ["Broadsheet", "Editorial", "#111111", "#E7E5E4", "serif", 500, "flex-start"],
-  ["Manuscript", "Editorial", "#F0EDE6", "#3F3A34", "serif", 400, "center"],
-  ["Column", "Editorial", "#FFFFFF", "#374151", "serif", 500, "flex-end"],
-  ["Margin", "Editorial", "#2B2B2B", "#F5F5F4", "serif", 400, "flex-start"],
-  ["Bubble", "Playful", "#FDE68A", "#78350F", "geist", 700, "center"],
-  ["Mint", "Playful", "#A7F3D0", "#064E3B", "geist", 700, "flex-end"],
-  ["Peach", "Playful", "#FED7AA", "#7C2D12", "grotesk", 700, "center"],
-  ["Sky", "Playful", "#BAE6FD", "#0C4A6E", "geist", 700, "flex-start"],
-  ["Lilac", "Playful", "#E9D5FF", "#4C1D95", "grotesk", 700, "flex-end"],
+  ["Mono", "Minimal", "#FFFFFF", "#0A0A0A", "#4F46E5", "geist", 600, "flex-end"],
+  ["Ink", "Minimal", "#0A0A0A", "#FAFAFA", "#2F6BFF", "geist", 600, "flex-end"],
+  ["Paper", "Minimal", "#F5F2EB", "#1C1917", "#B45309", "serif", 500, "center"],
+  ["Slate", "Minimal", "#1E293B", "#F8FAFC", "#60A5FA", "geist", 500, "flex-end"],
+  ["Fog", "Minimal", "#E7E5E4", "#292524", "#C2410C", "grotesk", 500, "flex-start"],
+  ["Signal", "Bold", "#4F46E5", "#FFFFFF", "#FDE047", "grotesk", 700, "flex-end"],
+  ["Tar", "Bold", "#111111", "#FDE047", "#FDE047", "grotesk", 700, "center"],
+  ["Cherry", "Bold", "#B91C1C", "#FFF1F2", "#FDE68A", "grotesk", 700, "flex-end"],
+  ["Volt", "Bold", "#CCFF00", "#111111", "#111111", "mono", 700, "flex-start"],
+  ["Cobalt", "Bold", "#1D4ED8", "#DBEAFE", "#FDE047", "geist", 700, "flex-end"],
+  ["Journal", "Editorial", "#FFFDF7", "#1F1F1F", "#B91C1C", "serif", 500, "flex-start"],
+  ["Broadsheet", "Editorial", "#111111", "#E7E5E4", "#F59E0B", "serif", 500, "flex-start"],
+  ["Manuscript", "Editorial", "#F0EDE6", "#3F3A34", "#7C2D12", "serif", 400, "center"],
+  ["Column", "Editorial", "#FFFFFF", "#374151", "#4F46E5", "serif", 500, "flex-end"],
+  ["Margin", "Editorial", "#2B2B2B", "#F5F5F4", "#FCD34D", "serif", 400, "flex-start"],
+  ["Bubble", "Playful", "#FDE68A", "#78350F", "#B45309", "geist", 700, "center"],
+  ["Mint", "Playful", "#A7F3D0", "#064E3B", "#047857", "geist", 700, "flex-end"],
+  ["Peach", "Playful", "#FED7AA", "#7C2D12", "#9A3412", "grotesk", 700, "center"],
+  ["Sky", "Playful", "#BAE6FD", "#0C4A6E", "#0369A1", "geist", 700, "flex-start"],
+  ["Lilac", "Playful", "#E9D5FF", "#4C1D95", "#6D28D9", "grotesk", 700, "flex-end"],
+  ["Studio", "Studio", "#0B0B14", "#F5F5F7", "#2F6BFF", "geist", 600, "center"],
+  ["Studio Light", "Studio", "#F7F7F9", "#0B0B14", "#2F6BFF", "geist", 600, "center"],
 ];
 
 export const TEMPLATES: Template[] = RAW_TEMPLATES.map((t, id) => ({
@@ -79,16 +83,20 @@ export const TEMPLATES: Template[] = RAW_TEMPLATES.map((t, id) => ({
   style: t[1],
   bg: t[2],
   fg: t[3],
-  font: t[4],
-  weight: t[5],
-  justify: t[6],
+  accent: t[4],
+  font: t[5],
+  weight: t[6],
+  justify: t[7],
 }));
 
-export const TEMPLATE_FILTERS = ["All", "Minimal", "Bold", "Editorial", "Playful"] as const;
+/** The template every new carousel starts on. */
+export const DEFAULT_TEMPLATE_ID = 20;
+
+export const TEMPLATE_FILTERS = ["All", "Studio", "Minimal", "Bold", "Editorial", "Playful"] as const;
 
 export const SCHEMES: Scheme[] = [
   { name: "Ink on white", bg: "#FFFFFF", fg: "#0A0A0A" },
-  { name: "White on ink", bg: "#0A0A0A", fg: "#FAFAFA" },
+  { name: "White on ink", bg: "#0B0B14", fg: "#F5F5F7" },
   { name: "Brand", bg: "#4F46E5", fg: "#FFFFFF" },
   { name: "Paper", bg: "#F5F2EB", fg: "#1C1917" },
   { name: "Volt", bg: "#CCFF00", fg: "#111111" },
@@ -105,9 +113,9 @@ export const DEFAULT_PROFILE: Profile = {
 };
 
 export const DEFAULT_BRAND: BrandKit = {
-  name: "Reyes Studio",
+  name: "reyes.studio",
   handle: "@marisol.writes",
-  colors: ["#4F46E5", "#0A0A0A", "#F5F2EB", "#CCFF00"],
+  colors: ["#2F6BFF", "#0B0B14", "#F5F2EB", "#CCFF00"],
   logo: null,
   logoName: null,
 };
@@ -126,14 +134,15 @@ export const PLAN_USAGE = {
 
 export const DEFAULT_PRESETS: Preset[] = [
   {
-    id: "preset_reyes",
-    name: "Reyes Studio",
+    id: "preset_studio",
+    name: "Studio dark",
     fontLabel: "Geist",
-    a: "#0A0A0A",
-    b: "#F5F2EB",
-    templateId: 1,
+    a: "#0B0B14",
+    b: "#2F6BFF",
+    templateId: 20,
     font: "geist",
     scheme: null,
+    accent: null,
   },
   {
     id: "preset_founder",
@@ -144,6 +153,7 @@ export const DEFAULT_PRESETS: Preset[] = [
     templateId: 10,
     font: "serif",
     scheme: null,
+    accent: null,
   },
   {
     id: "preset_launch",
@@ -154,22 +164,32 @@ export const DEFAULT_PRESETS: Preset[] = [
     templateId: 8,
     font: "grotesk",
     scheme: null,
+    accent: null,
   },
 ];
 
 /* ------------------------------------------------------------ seed docs */
 
-type RawSlide = [SlideType, string, string];
+type RawSlide = [SlideType, string, string, Bullet[]?];
 
 export const SEED_SLIDES: RawSlide[] = [
-  ["hook", "Post one carousel a day. Not three a week.", "The math nobody tells you about consistency."],
+  ["hook", "Post one carousel a *day*. Not three a week.", "The math nobody tells you about consistency."],
   ["point", "Day 1–30: nobody is watching.", "Use it. This is the only time you can be bad in public for free."],
   ["point", "Day 31–60: the algorithm starts testing you.", "One in ten posts gets pushed. You won’t know which. Post anyway."],
   ["quote", "“Consistency is a distribution strategy, not a personality trait.”", "— Marisol Reyes"],
-  ["list", "The 3 slides every carousel needs", "A hook that names a pain. A turn that reframes it. A CTA that asks for one thing."],
+  [
+    "list",
+    "The 3 slides every carousel needs",
+    "",
+    [
+      { title: "A hook that names a pain", text: "Say the thing they already feel." },
+      { title: "A turn that reframes it", text: "One idea per slide. No more." },
+      { title: "A CTA that asks for one thing", text: "Save, follow or comment. Pick one." },
+    ],
+  ],
   ["point", "Day 61–90: saves beat likes.", "Write for the person who screenshots. That’s who the algorithm trusts."],
   ["point", "800 → 41k in 90 days.", "Not viral. Just 90 posts in a row."],
-  ["cta", "Save this. Then post today.", "Follow @marisol.writes for one carousel system a week."],
+  ["cta", "Save this. Then post *today*.", "Follow @marisol.writes for one carousel system a week."],
 ];
 
 interface RawDoc {
@@ -178,17 +198,43 @@ interface RawDoc {
   status: DocStatus;
   minutesAgo: number;
   slides: RawSlide[];
+  header?: boolean;
+  swipeHint?: string;
 }
 
 const RAW_DOCS: RawDoc[] = [
-  { title: "90-day carousel system", templateId: 0, status: "Draft", minutesAgo: 2, slides: SEED_SLIDES },
+  {
+    title: "Phone storage, explained",
+    templateId: 20,
+    status: "Draft",
+    minutesAgo: 2,
+    slides: [
+      ["hook", "Too many *photos* on your phone?", "Cloud storage, explained in six slides."],
+      [
+        "list",
+        "Cloud *storage*",
+        "",
+        [
+          { title: "One bucket for everything", text: "Mail, files and photos share the same space." },
+          { title: "15 GB for free", text: "Per account. More only on a paid plan." },
+          { title: "The bin still counts", text: "Deleted files hold their space for 30 days." },
+          { title: "Full means frozen", text: "No new mail, no more uploads." },
+        ],
+      ],
+      ["point", "Videos are the *real* problem.", "Not the photos. One holiday clip weighs more than a year of stills."],
+      ["point", "Old mail attachments come second.", "Ten years of PDFs and screenshots nobody will open again."],
+      ["point", "Clean up in the storage manager, not the gallery.", "It sorts by size and shows what actually takes the space."],
+      ["cta", "Save this before you delete *anything*.", "Follow @marisol.writes for one practical tip a week."],
+    ],
+  },
+  { title: "90-day carousel system", templateId: 0, status: "Draft", minutesAgo: 25, slides: SEED_SLIDES },
   {
     title: "Why I stopped using Canva",
     templateId: 1,
     status: "Scheduled",
     minutesAgo: 60,
     slides: [
-      ["hook", "I made 600 carousels in Canva. Then I quit.", "Not because it’s bad. Because it’s for everything."],
+      ["hook", "I made 600 carousels in Canva. Then I *quit*.", "Not because it’s bad. Because it’s for everything."],
       ["point", "Every carousel started with 40 minutes of layout.", "Resizing text boxes is not writing."],
       ["point", "Brand colours lived in my head, not the tool.", "Six clients, six hex codes, zero memory."],
       ["point", "Reordering slides meant rebuilding slides.", "Drag a page in Canva and watch your numbering die."],
@@ -202,13 +248,22 @@ const RAW_DOCS: RawDoc[] = [
     status: "Published",
     minutesAgo: 180,
     slides: [
-      ["hook", "Onboarding a ghostwriting client in 48 hours.", "The checklist I send before the first invoice."],
+      ["hook", "Onboarding a ghostwriting client in *48 hours*.", "The checklist I send before the first invoice."],
       ["point", "1. Voice interview, 45 minutes, recorded.", "I ask about the last thing that made them angry online."],
       ["point", "2. Ten posts they wish they’d written.", "Not competitors. People they’d actually have a drink with."],
       ["point", "3. Three words they never want to sound like.", "‘Synergy’ comes up more than you’d think."],
       ["point", "4. Approval window: 24 hours, then it ships.", "Silence is a yes. It’s in the contract."],
       ["point", "5. A shared brand kit in Slidecast.", "Logo, handle, colours. Set once, used on every slide."],
-      ["list", "6. First week: 3 drafts, 1 published.", "Calibrate on real reactions, not on a doc."],
+      [
+        "list",
+        "6. The first week",
+        "",
+        [
+          { title: "Three drafts", text: "Calibrate on real reactions, not a doc." },
+          { title: "One published", text: "Ship before it feels ready." },
+          { title: "One review call", text: "Twenty minutes. What surprised them?" },
+        ],
+      ],
       ["point", "7. Monthly voice review.", "People change. Their feed should too."],
       ["quote", "“The first month is a listening job.”", "— Reyes Studio playbook"],
       ["cta", "Save this before your next kickoff call.", "Follow @marisol.writes for the templates."],
@@ -220,7 +275,7 @@ const RAW_DOCS: RawDoc[] = [
     status: "Draft",
     minutesAgo: 60 * 24,
     slides: [
-      ["hook", "What I charge to ghostwrite in 2026.", "Real numbers, because nobody shares them."],
+      ["hook", "What I charge to ghostwrite in *2026*.", "Real numbers, because nobody shares them."],
       ["point", "Single carousel: €180.", "Research, eight slides, two revisions."],
       ["point", "Weekly retainer: €1,400 a month.", "Four carousels, one voice review, Slack access."],
       ["point", "Founder package: €3,200 a month.", "Daily posts, comments strategy, monthly analytics."],
@@ -235,7 +290,7 @@ const RAW_DOCS: RawDoc[] = [
     status: "Published",
     minutesAgo: 60 * 26,
     slides: [
-      ["hook", "5 hooks that beat my average by 3×.", "Pulled from 90 days of data."],
+      ["hook", "5 hooks that beat my average by *3×*.", "Pulled from 90 days of data."],
       ["point", "“I was wrong about ___.”", "Admitting it buys attention nobody else will give you."],
       ["point", "“The math nobody tells you about ___.”", "Numbers promise specificity. Deliver it."],
       ["point", "“I made 600 ___. Then I quit.”", "Volume plus a turn. Works every time."],
@@ -248,12 +303,20 @@ const RAW_DOCS: RawDoc[] = [
     status: "Scheduled",
     minutesAgo: 60 * 48,
     slides: [
-      ["hook", "Your founder sounds like your brand. That’s the problem.", "One should be sharp. The other should be safe."],
+      ["hook", "Your founder sounds like your brand. That’s the *problem*.", "One should be sharp. The other should be safe."],
       ["point", "Brand voice is a floor.", "It stops the intern from posting something weird."],
       ["point", "Founder voice is a ceiling.", "It’s where the opinions live. And the reach."],
       ["point", "Founders who sound like press releases get press-release engagement.", "Zero comments, two likes from the team."],
       ["point", "The fix: two style guides, one calendar.", "Brand posts Tuesday. Founder posts Thursday."],
-      ["list", "Founder posts get: an opinion, a number, a name.", "Brand posts get: a feature, a customer, a date."],
+      [
+        "list",
+        "What each post gets",
+        "",
+        [
+          { title: "Founder: an opinion, a number, a name", text: "Something a press release would never say." },
+          { title: "Brand: a feature, a customer, a date", text: "Safe, useful, on schedule." },
+        ],
+      ],
       ["quote", "“People follow people. They tolerate brands.”", "— a client, correctly"],
       ["point", "Test: would this post survive a screenshot?", "If it needs the logo to make sense, it’s brand."],
       ["cta", "Save this for your next content review.", "Follow @marisol.writes for the founder framework."],
@@ -265,7 +328,7 @@ const RAW_DOCS: RawDoc[] = [
     status: "Published",
     minutesAgo: 60 * 72,
     slides: [
-      ["hook", "My entire content stack costs €29 a month.", "Six clients. Daily posts. No agency."],
+      ["hook", "My entire content stack costs *€29* a month.", "Six clients. Daily posts. No agency."],
       ["point", "Notes app: free.", "Every idea goes in raw. Editing happens later."],
       ["point", "Slidecast: €29.", "Paste the note, pick a tone, export eight PNGs."],
       ["point", "Scheduling: Buffer, free tier.", "Three channels is enough when you post daily."],
@@ -277,11 +340,11 @@ const RAW_DOCS: RawDoc[] = [
   },
   {
     title: "Reyes Studio Q3 recap",
-    templateId: 2,
+    templateId: 21,
     status: "Published",
     minutesAgo: 60 * 96,
     slides: [
-      ["hook", "Q3 at Reyes Studio, in six slides.", "Numbers, mistakes, and what changes in Q4."],
+      ["hook", "Q3 at Reyes Studio, in *six* slides.", "Numbers, mistakes, and what changes in Q4."],
       ["point", "312 carousels shipped.", "Across six founders and two agencies."],
       ["point", "Best post: 41k saves.", "A checklist. Not a story. Noted."],
       ["point", "Biggest mistake: taking a seventh client.", "Quality dipped for three weeks. I fired myself from it."],
@@ -295,7 +358,7 @@ const RAW_DOCS: RawDoc[] = [
     status: "Draft",
     minutesAgo: 60 * 24 * 7,
     slides: [
-      ["hook", "Stop pricing carousels per slide.", "You’re not selling slides. You’re selling attention."],
+      ["hook", "Stop pricing carousels per *slide*.", "You’re not selling slides. You’re selling attention."],
       ["point", "Per-slide pricing punishes good editing.", "Cutting from ten to six slides shouldn’t cut your fee."],
       ["point", "Price the outcome: one post that gets saved.", "Research + hook + structure + export. One number."],
       ["point", "Anchor high, then offer a retainer.", "€180 once. €1,400 for four a month. Watch which they pick."],
@@ -310,7 +373,7 @@ const RAW_DOCS: RawDoc[] = [
     status: "Published",
     minutesAgo: 60 * 24 * 9,
     slides: [
-      ["hook", "I plan 30 carousels a month on paper.", "Notion is where ideas go to look organised."],
+      ["hook", "I plan 30 carousels a month on *paper*.", "Notion is where ideas go to look organised."],
       ["point", "Paper has no notifications.", "Thirty minutes of planning without a ping."],
       ["point", "Paper forces one idea per line.", "If it doesn’t fit, it isn’t a slide."],
       ["point", "Notion is for the archive, not the draft.", "Finished carousels go in. Nothing starts there."],
@@ -323,13 +386,22 @@ const RAW_DOCS: RawDoc[] = [
     status: "Published",
     minutesAgo: 60 * 24 * 14,
     slides: [
-      ["hook", "I fired three clients this year. Revenue went up.", "The pattern was obvious in hindsight."],
+      ["hook", "I fired three clients this year. Revenue went *up*.", "The pattern was obvious in hindsight."],
       ["point", "Client 1: approved nothing, complained about reach.", "You can’t grow an account that never posts."],
       ["point", "Client 2: wanted every post to sell.", "Eight slides of pitch is a brochure, not a carousel."],
       ["point", "Client 3: paid late, every month.", "Chasing invoices is unpaid work. I stopped doing it."],
       ["point", "What replaced them: two founders who post daily.", "Same revenue, half the meetings."],
       ["quote", "“The clients you keep decide the work you get.”", "— a mentor, 2019"],
-      ["list", "Red flags: no approval window, no opinions, no invoice on time.", "Any two of three, and it’s a no."],
+      [
+        "list",
+        "Red flags",
+        "",
+        [
+          { title: "No approval window", text: "Everything waits, nothing ships." },
+          { title: "No opinions", text: "There is nothing to write about." },
+          { title: "No invoice on time", text: "Any two of three, and it’s a no." },
+        ],
+      ],
       ["cta", "Save this for your next contract review.", "Follow @marisol.writes for the client scorecard."],
     ],
   },
@@ -339,7 +411,7 @@ const RAW_DOCS: RawDoc[] = [
     status: "Published",
     minutesAgo: 60 * 24 * 21,
     slides: [
-      ["hook", "Tuesday is batching day. Here’s the whole setup.", "Seven carousels before lunch."],
+      ["hook", "Tuesday is batching day. Here’s the whole *setup*.", "Seven carousels before lunch."],
       ["point", "8:00 — pick seven notes from the week.", "The ones that made me a little angry win."],
       ["point", "8:30 — paste, pick a tone, generate.", "Eight slides each. I edit the hooks first."],
       ["point", "9:30 — apply the brand kit.", "One click. Logo, handle, colours on all seven."],
@@ -353,11 +425,12 @@ const RAW_DOCS: RawDoc[] = [
 ];
 
 function slidesFrom(raw: RawSlide[]): Slide[] {
-  return raw.map(([type, headline, body]) => ({
+  return raw.map(([type, headline, body, bullets]) => ({
     id: newId("s"),
     type,
     headline,
     body,
+    ...(bullets ? { bullets } : {}),
   }));
 }
 
@@ -370,8 +443,12 @@ export function createSeedDocs(now = Date.now()): Doc[] {
       slides: slidesFrom(d.slides),
       templateId: d.templateId,
       scheme: null,
+      accent: null,
       fontPair: TEMPLATES[d.templateId].font,
       align: "left",
+      header: d.header ?? true,
+      swipeHint: d.swipeHint ?? "Swipe",
+      caption: "",
       status: d.status,
       createdAt: updatedAt - 3 * 60 * 60_000,
       updatedAt,
@@ -388,11 +465,12 @@ export function createSeedWorkspace(now = Date.now()): Workspace {
     profile: DEFAULT_PROFILE,
     presets: DEFAULT_PRESETS,
     accent: DEFAULT_ACCENT,
+    channels: [],
     lastOpenedId: docs[0]?.id ?? null,
   };
 }
 
-export function createBlankDoc(now = Date.now()): Doc {
+export function createBlankDoc(now = Date.now(), templateId = DEFAULT_TEMPLATE_ID): Doc {
   return {
     id: newId("doc"),
     title: "Untitled carousel",
@@ -400,17 +478,44 @@ export function createBlankDoc(now = Date.now()): Doc {
       {
         id: newId("s"),
         type: "hook",
-        headline: "Your hook goes here.",
+        headline: "Your *hook* goes here.",
         body: "One sentence that names the pain.",
       },
     ],
-    templateId: 0,
+    templateId,
     scheme: null,
-    fontPair: "geist",
+    accent: null,
+    fontPair: TEMPLATES[templateId]?.font ?? "geist",
     align: "left",
+    header: true,
+    swipeHint: "Swipe",
+    caption: "",
     status: "Draft",
     createdAt: now,
     updatedAt: now,
+  };
+}
+
+/** Fill in fields added after a workspace was first saved. */
+export function migrateDoc(doc: Partial<Doc> & Pick<Doc, "id" | "title" | "slides">): Doc {
+  const templateId = doc.templateId ?? DEFAULT_TEMPLATE_ID;
+  return {
+    id: doc.id,
+    title: doc.title,
+    slides: doc.slides,
+    templateId,
+    scheme: doc.scheme ?? null,
+    accent: doc.accent ?? null,
+    fontPair: doc.fontPair ?? TEMPLATES[templateId]?.font ?? "geist",
+    align: doc.align ?? "left",
+    header: doc.header ?? true,
+    swipeHint: doc.swipeHint ?? "Swipe",
+    caption: doc.caption ?? "",
+    status: doc.status ?? "Draft",
+    publishedAt: doc.publishedAt,
+    publishedTo: doc.publishedTo,
+    createdAt: doc.createdAt ?? Date.now(),
+    updatedAt: doc.updatedAt ?? Date.now(),
   };
 }
 
@@ -475,7 +580,7 @@ export const PLANS: Plan[] = [
     desc: "For trying it on your own account.",
     features: [
       "5 carousels a month",
-      "All 20 templates",
+      "All 22 templates",
       "PNG export at 1080×1350",
       "Slidecast watermark on slide 8",
     ],
@@ -512,14 +617,14 @@ export const PLANS: Plan[] = [
   },
 ];
 
-/** Five slides that page through the hero preview on the landing page. */
-export const HERO_SLIDES = [0, 1, 5, 10, 15].map((templateId, i) => {
-  const [type, headline, body] = SEED_SLIDES[[0, 1, 3, 4, 7][i]];
-  return { template: TEMPLATES[templateId], type, headline, body };
+/** Slides that page through the hero preview on the landing page. */
+export const HERO_SLIDES = [20, 21, 1, 10, 5].map((templateId, i) => {
+  const [type, headline, body, bullets] = RAW_DOCS[0].slides[[0, 1, 2, 4, 5][i]];
+  return { template: TEMPLATES[templateId], type, headline, body, bullets };
 });
 
 export const TEMPLATE_HOVER_FRAMES = [
-  "Post one carousel a day.",
+  "Post one carousel a *day*.",
   "Day 31–60: the algorithm tests you.",
-  "Save this. Then post today.",
+  "Save this. Then post *today*.",
 ];

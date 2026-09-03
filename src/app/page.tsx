@@ -103,7 +103,7 @@ function Features() {
         <FeatureRow
           eyebrow="Edit"
           title="An editor with three tabs, not three hundred menus."
-          body="Double‑click any text on the canvas to rewrite it. Drag slides to reorder. Switch between 20 templates without losing a word. Arrow keys move between slides; ⌘S saves — though it already did."
+          body="Double‑click any text on the canvas to rewrite it. Drag slides to reorder. Switch between 22 templates without losing a word. Arrow keys move between slides; ⌘S saves — though it already did."
           shot={<EditorShot />}
           reversed
         />

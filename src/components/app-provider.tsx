@@ -26,9 +26,13 @@ import { draftSlides, titleFrom } from "@/lib/generator";
 import { newId } from "@/lib/id";
 import { encodeShare } from "@/lib/share";
 import { clearWorkspace, loadWorkspace, saveWorkspace } from "@/lib/storage";
+import { avatarText } from "@/lib/initials";
+import type { SlideChrome } from "./slide-canvas";
+import { captionFor } from "@/lib/caption";
 import type {
   Align,
   BrandKit,
+  Channel,
   ConfirmRequest,
   Doc,
   DocStatus,
@@ -53,6 +57,12 @@ type InspectorTab = "content" | "style" | "brand";
 export interface ExportProgress {
   done: number;
   total: number;
+  label: string;
+}
+
+export interface PublishProgress {
+  step: number;
+  steps: number;
   label: string;
 }
 
@@ -105,6 +115,11 @@ interface AppState {
   setScheme: (scheme: Scheme | null) => void;
   setFontPair: (pair: FontPair) => void;
   setAlign: (align: Align) => void;
+  setSlideAccent: (hex: string | null) => void;
+  setHeader: (on: boolean) => void;
+  setSwipeHint: (hint: string) => void;
+  /** Header/footer details for slide `index` of the open document. */
+  chromeFor: (index: number, total?: number) => SlideChrome;
 
   /* autosave */
   saveState: SaveState;
@@ -133,9 +148,22 @@ interface AppState {
   genSlides: Slide[];
   generate: () => void;
 
+  /* channels + publishing */
+  channels: Channel[];
+  connectChannel: (handle: string) => Promise<Channel>;
+  disconnectChannel: (id: string) => void;
+  connectOpen: boolean;
+  setConnectOpen: (open: boolean) => void;
+  caption: string;
+  setCaption: (caption: string) => void;
+  publishing: PublishProgress | null;
+  publish: (channelId: string) => void;
+
   /* export */
   exportOpen: boolean;
   setExportOpen: (open: boolean) => void;
+  exportTab: "download" | "publish";
+  setExportTab: (tab: "download" | "publish") => void;
   format: ExportFormat;
   setFormat: (format: ExportFormat) => void;
   size: ExportSize;
@@ -195,6 +223,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [genSlides, setGenSlides] = useState<Slide[]>([]);
 
   const [exportOpen, setExportOpen] = useState(false);
+  const [exportTab, setExportTab] = useState<"download" | "publish">("download");
+  const [connectOpen, setConnectOpen] = useState(false);
+  const [publishing, setPublishing] = useState<PublishProgress | null>(null);
   const [format, setFormat] = useState<ExportFormat>("PNG");
   const [size, setSize] = useState<ExportSize>("Post");
   const [quality, setQuality] = useState<ExportQuality>("2x");
@@ -324,11 +355,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const createDoc = useCallback(
     (opts: { withAi?: boolean; templateId?: number } = {}) => {
-      const fresh = createBlankDoc();
-      if (opts.templateId != null) {
-        fresh.templateId = opts.templateId;
-        fresh.fontPair = TEMPLATES[opts.templateId].font;
-      }
+      const fresh = createBlankDoc(Date.now(), opts.templateId);
       setWs((w) => ({ ...w, docs: [fresh, ...w.docs], lastOpenedId: fresh.id }));
       setActiveIndex(0);
       setZoom(1);
@@ -499,6 +526,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (align: Align) => patchDoc((d) => ({ ...d, align })),
     [patchDoc],
   );
+  const setSlideAccent = useCallback(
+    (accent: string | null) => patchDoc((d) => ({ ...d, accent })),
+    [patchDoc],
+  );
+  const setHeader = useCallback(
+    (header: boolean) => patchDoc((d) => ({ ...d, header })),
+    [patchDoc],
+  );
+  const setSwipeHint = useCallback(
+    (swipeHint: string) => patchDoc((d) => ({ ...d, swipeHint })),
+    [patchDoc],
+  );
+
+  const chromeFor = useCallback(
+    (index: number, total = doc.slides.length): SlideChrome => ({
+      handle: ws.brand.handle,
+      name: ws.brand.name ? `${ws.profile.name} | ${ws.brand.name}` : ws.profile.name,
+      initials: avatarText(ws.brand.name, ws.profile.name),
+      logo: ws.brand.logo,
+      index,
+      total,
+    }),
+    [doc.slides.length, ws.brand, ws.profile.name],
+  );
 
   /* -------------------------------------------------------------- account */
   const updateProfile = useCallback((patch: Partial<Profile>) => {
@@ -528,6 +579,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       templateId: doc.templateId,
       font: doc.fontPair,
       scheme: doc.scheme,
+      accent: doc.accent,
     };
     setWs((w) => ({ ...w, presets: [preset, ...w.presets] }));
     toast(`Preset “${preset.name}” saved`);
@@ -549,6 +601,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         templateId: preset.templateId,
         fontPair: preset.font,
         scheme: preset.scheme,
+        accent: preset.accent ?? null,
       }));
       toast(`Preset “${preset.name}” applied`);
     },
@@ -613,6 +666,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const result = await exportCarousel({
         doc,
         brand: ws.brand,
+        profile: ws.profile,
         format,
         size,
         quality,
@@ -628,7 +682,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setExporting(false);
       setExportProgress(null);
     }
-  }, [exporting, doc, ws.brand, format, size, quality, toast]);
+  }, [exporting, doc, ws.brand, ws.profile, format, size, quality, toast]);
 
   const schedule = useCallback(() => {
     patchDoc((d) => ({ ...d, status: "Scheduled" }));
@@ -636,8 +690,89 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Scheduled via Buffer · Tue 9:00");
   }, [patchDoc, toast]);
 
+  /* ------------------------------------------------------------- channels */
+  const connectChannel = useCallback(
+    (rawHandle: string) =>
+      new Promise<Channel>((resolve) => {
+        const handle = "@" + rawHandle.trim().replace(/^@/, "").replace(/\s+/g, "").toLowerCase();
+        // Stands in for the Instagram OAuth round-trip; a backend would
+        // exchange the code for a token here.
+        setTimeout(() => {
+          const channel: Channel = {
+            id: newId("ch"),
+            platform: "instagram",
+            handle,
+            displayName: handle.slice(1),
+            connectedAt: Date.now(),
+          };
+          setWs((w) => ({
+            ...w,
+            channels: [...w.channels.filter((c) => c.handle !== handle), channel],
+          }));
+          toast(`${handle} connected`);
+          resolve(channel);
+        }, 1200);
+      }),
+    [toast],
+  );
+
+  const disconnectChannel = useCallback(
+    (id: string) => {
+      const previous = ws.channels;
+      const target = previous.find((c) => c.id === id);
+      setWs((w) => ({ ...w, channels: w.channels.filter((c) => c.id !== id) }));
+      setConfirm(null);
+      toast(`${target?.handle ?? "Channel"} disconnected`, () =>
+        setWs((w) => ({ ...w, channels: previous })),
+      );
+    },
+    [ws.channels, toast],
+  );
+
+  const setCaption = useCallback(
+    (caption: string) => patchDoc((d) => ({ ...d, caption }), { silent: true }),
+    [patchDoc],
+  );
+
+  const publish = useCallback(
+    (channelId: string) => {
+      const channel = ws.channels.find((c) => c.id === channelId);
+      if (!channel || publishing) return;
+      const total = doc.slides.length;
+      const steps = [
+        "Rendering slides…",
+        `Uploading ${total} slides to Instagram…`,
+        "Creating the carousel…",
+        "Attaching caption…",
+        "Publishing…",
+      ];
+      let i = 0;
+      const tick = () => {
+        setPublishing({ step: i + 1, steps: steps.length, label: steps[i] });
+        i += 1;
+        if (i < steps.length) {
+          genTimer.current = setTimeout(tick, 650);
+          return;
+        }
+        genTimer.current = setTimeout(() => {
+          patchDoc((d) => ({
+            ...d,
+            status: "Published",
+            publishedAt: Date.now(),
+            publishedTo: channel.handle,
+          }));
+          setPublishing(null);
+          setExportOpen(false);
+          toast(`Published to ${channel.handle}`);
+        }, 600);
+      };
+      tick();
+    },
+    [ws.channels, publishing, doc.slides.length, patchDoc, toast],
+  );
+
   const share = useCallback(async () => {
-    const url = `${window.location.origin}/share#${encodeShare(doc, ws.brand)}`;
+    const url = `${window.location.origin}/share#${encodeShare(doc, ws.brand, chromeFor(0).name)}`;
     try {
       await navigator.clipboard.writeText(url);
       toast("Share link copied");
@@ -645,7 +780,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       window.open(url, "_blank", "noopener");
       toast("Share link opened in a new tab");
     }
-  }, [doc, ws.brand, toast]);
+  }, [doc, ws.brand, chromeFor, toast]);
 
   /* ------------------------------------------------------------------ misc */
   const toggleTheme = useCallback(() => setTheme((t) => (t === "dark" ? "light" : "dark")), []);
@@ -697,6 +832,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setScheme,
       setFontPair,
       setAlign,
+      setSlideAccent,
+      setHeader,
+      setSwipeHint,
+      chromeFor,
       saveState,
       touch,
       zoom,
@@ -731,6 +870,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       runExport,
       schedule,
       share,
+      channels: ws.channels,
+      connectChannel,
+      disconnectChannel,
+      connectOpen,
+      setConnectOpen,
+      caption: captionFor(doc, ws.brand),
+      setCaption,
+      publishing,
+      publish,
+      exportTab,
+      setExportTab,
       previewOpen,
       setPreviewOpen,
       cmdOpen,
@@ -782,6 +932,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setScheme,
       setFontPair,
       setAlign,
+      setSlideAccent,
+      setHeader,
+      setSwipeHint,
+      chromeFor,
       saveState,
       touch,
       zoom,
@@ -808,6 +962,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       runExport,
       schedule,
       share,
+      ws.channels,
+      connectChannel,
+      disconnectChannel,
+      connectOpen,
+      setCaption,
+      publishing,
+      publish,
+      exportTab,
       previewOpen,
       cmdOpen,
       toasts,
