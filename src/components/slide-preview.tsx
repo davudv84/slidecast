@@ -41,7 +41,13 @@ export function SlidePreview({
   const width = useElementWidth(ref);
 
   return (
-    <div ref={ref} className={className} style={{ width: "100%", aspectRatio: "1080 / 1350" }}>
+    // `contain: inline-size` keeps the fixed-width canvas from feeding back
+    // into its parent's intrinsic width (a grid track would otherwise grow).
+    <div
+      ref={ref}
+      className={className}
+      style={{ width: "100%", aspectRatio: "1080 / 1350", contain: "inline-size", overflow: "hidden" }}
+    >
       {width > 0 ? (
         <SlideCanvas slide={slide} style={style} width={width} chrome={chrome} onTap={onTap} />
       ) : null}

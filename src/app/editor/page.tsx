@@ -99,7 +99,7 @@ function MobileEditor() {
         <div
           ref={frame}
           className="mx-auto w-full max-w-110 overflow-hidden rounded-card shadow-[0_0_0_1px_var(--border)]"
-          style={{ aspectRatio: "1080 / 1350" }}
+          style={{ aspectRatio: "1080 / 1350", contain: "inline-size" }}
           {...swipe}
         >
           {width > 0 ? (
