@@ -1,6 +1,20 @@
 import { docStyle, primaryFamily, resolveFontFamily } from "./doc-style";
 import { buildPdf, type PdfPage } from "./pdf";
-import { canvasToBlob, loadImage, renderSlide } from "./render-slide";
+import { canvasToBlob, loadImage, renderSlide, type RenderAssets } from "./render-slide";
+import { iconDataUrl } from "./details";
+import type { Slide } from "./types";
+
+/** Decode a slide's background photo and detail visual before rendering. */
+async function slideAssets(slide: Slide, accent: string): Promise<RenderAssets> {
+  const background = slide.image ? await loadImage(slide.image).catch(() => null) : null;
+  let detail: HTMLImageElement | null = null;
+  if (slide.detail?.kind === "icon") {
+    detail = await loadImage(iconDataUrl(slide.detail.name, accent, 512)).catch(() => null);
+  } else if (slide.detail?.kind === "image") {
+    detail = await loadImage(slide.detail.src).catch(() => null);
+  }
+  return { background, detail };
+}
 import { SLIDE_SIZES } from "./slide-layout";
 import { buildZip, type ZipEntry } from "./zip";
 import { avatarText } from "./initials";
@@ -97,6 +111,7 @@ export async function exportCarousel(req: ExportRequest): Promise<ExportResult> 
         size,
         scale,
         chrome: { ...chromeBase, index: i },
+        assets: await slideAssets(doc.slides[i], style.accent),
       });
       const blob = await canvasToBlob(canvas, "image/png");
       entries.push({
@@ -124,6 +139,7 @@ export async function exportCarousel(req: ExportRequest): Promise<ExportResult> 
       size,
       scale,
       chrome: { ...chromeBase, index: i },
+      assets: await slideAssets(doc.slides[i], style.accent),
     });
     const blob = await canvasToBlob(canvas, "image/jpeg", 0.92);
     pages.push({

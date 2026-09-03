@@ -6,18 +6,22 @@ import {
   ACCENT_SQUARE,
   BODY,
   BULLET,
+  DETAIL,
   FOOTER,
   HEADER,
   HEADLINE,
+  IMAGE_OVERLAY,
   KICKER,
   PAD,
+  RULE,
   SLIDE_SIZES,
   contentBox,
   headlineSize,
 } from "@/lib/slide-layout";
 import { ACCENT_FONT, parseRich } from "@/lib/rich-text";
-import { contrastText } from "@/lib/color";
-import type { Align, ExportSize, Slide } from "@/lib/types";
+import { contrastText, hexToRgb } from "@/lib/color";
+import { iconNode } from "@/lib/details";
+import type { Align, Detail, ExportSize, Slide } from "@/lib/types";
 
 export interface SlideChrome {
   handle: string;
@@ -43,6 +47,12 @@ export interface SlideCanvasProps {
   onTap?: () => void;
 }
 
+/** rgba() for a hex slide colour at the given alpha. */
+export function withAlpha(hex: string, alpha: number) {
+  const rgb = hexToRgb(hex) ?? [0, 0, 0];
+  return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+}
+
 /**
  * A slide at authoring resolution (1080 wide), scaled to `width`. Geometry
  * comes from slide-layout.ts so the PNG export matches this pixel for pixel.
@@ -66,6 +76,7 @@ export function SlideCanvas({
   const isLast = chrome ? chrome.index === chrome.total - 1 : false;
   const bullets = slide.type === "list" ? (slide.bullets ?? []) : [];
   const hasBody = slide.body.trim().length > 0;
+  const overlay = slide.imageOverlay ?? IMAGE_OVERLAY.default;
 
   return (
     <div
@@ -85,6 +96,25 @@ export function SlideCanvas({
           fontFamily: style.fontFamily,
         }}
       >
+        {slide.image ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={slide.image}
+              alt=""
+              draggable={false}
+              className="absolute inset-0"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(180deg, ${withAlpha(style.bg, overlay * 0.55)} 0%, ${withAlpha(style.bg, overlay)} 55%, ${withAlpha(style.bg, Math.min(1, overlay + 0.1))} 100%)`,
+              }}
+            />
+          </>
+        ) : null}
+
         {chrome && style.header ? (
           <Header chrome={chrome} style={style} />
         ) : chrome ? (
@@ -132,6 +162,18 @@ export function SlideCanvas({
               lineHeight: HEADLINE.lineHeight,
             }}
           />
+          <span
+            aria-hidden
+            style={{
+              display: "block",
+              width: RULE.width,
+              height: RULE.height,
+              marginTop: RULE.gapAbove,
+              background: style.accent,
+              marginLeft: style.align === "left" ? 0 : "auto",
+              marginRight: style.align === "right" ? 0 : "auto",
+            }}
+          />
           {hasBody || (editable && slide.type !== "list") ? (
             <EditableText
               key={`b${slide.id}`}
@@ -150,6 +192,7 @@ export function SlideCanvas({
             />
           ) : null}
           {bullets.length ? <Bullets bullets={bullets} accent={style.accent} /> : null}
+          {slide.detail ? <DetailView detail={slide.detail} style={style} /> : null}
         </div>
 
         {chrome ? (
@@ -306,6 +349,96 @@ function Bullets({ bullets, accent }: { bullets: { title: string; text: string }
           </span>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- detail */
+
+/** Inline SVG from Lucide node data, sized in slide pixels. */
+export function IconGlyph({ name, size, color, strokeWidth = DETAIL.iconStroke }: { name: string; size: number; color: string; strokeWidth?: number }) {
+  const node = iconNode(name);
+  if (!node) return null;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {node.map(([tag, attrs], i) => React.createElement(tag, { key: i, ...attrs }))}
+    </svg>
+  );
+}
+
+function DetailView({ detail, style }: { detail: Detail; style: SlideStyle }) {
+  const alignSelf = style.align === "center" ? "center" : style.align === "right" ? "flex-end" : "flex-start";
+  if (detail.kind === "icon") {
+    return (
+      <div style={{ marginTop: DETAIL.gapAbove, alignSelf, lineHeight: 0 }}>
+        <IconGlyph name={detail.name} size={DETAIL.icon} color={style.accent} />
+      </div>
+    );
+  }
+  if (detail.kind === "image") {
+    return (
+      <div style={{ marginTop: DETAIL.gapAbove, alignSelf, lineHeight: 0 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={detail.src}
+          alt=""
+          draggable={false}
+          style={{ maxHeight: DETAIL.imageMax, maxWidth: SLIDE_SIZES.Post.w - PAD * 2, objectFit: "contain", display: "block" }}
+        />
+      </div>
+    );
+  }
+  const bars = detail.bars;
+  return (
+    <div
+      className="flex items-end"
+      style={{ marginTop: DETAIL.gapAbove, alignSelf, gap: DETAIL.barGapText, textAlign: "left" }}
+    >
+      <div className="flex flex-col" style={{ gap: DETAIL.statGap }}>
+        <span
+          style={{
+            fontSize: DETAIL.statValue,
+            lineHeight: 1,
+            fontWeight: 700,
+            letterSpacing: "-0.03em",
+            color: style.accent,
+          }}
+        >
+          {detail.value}
+        </span>
+        <span style={{ fontSize: DETAIL.statLabel, lineHeight: 1.3, opacity: BODY.opacity, maxWidth: 520 }}>
+          {detail.label}
+        </span>
+      </div>
+      {bars ? (
+        <div className="flex items-end" style={{ gap: DETAIL.barGap, height: DETAIL.barMaxH }}>
+          {bars.map((v, i) => {
+            const max = Math.max(...bars);
+            return (
+              <span
+                key={i}
+                style={{
+                  width: DETAIL.barW,
+                  height: Math.max(12, (v / max) * DETAIL.barMaxH),
+                  background: i === bars.length - 1 ? style.accent : "currentColor",
+                  opacity: i === bars.length - 1 ? 1 : 0.25,
+                  borderRadius: 4,
+                }}
+              />
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

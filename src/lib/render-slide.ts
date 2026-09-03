@@ -2,17 +2,20 @@ import {
   ACCENT_SQUARE,
   BODY,
   BULLET,
+  DETAIL,
   FOOTER,
   HEADER,
   HEADLINE,
+  IMAGE_OVERLAY,
   KICKER,
   PAD,
+  RULE,
   SLIDE_SIZES,
   contentBox,
   headlineSize,
 } from "./slide-layout";
 import { ACCENT_FONT, parseRich, richWords, type RichToken } from "./rich-text";
-import { contrastText } from "./color";
+import { contrastText, hexToRgb } from "./color";
 import type { SlideStyle } from "./doc-style";
 import type { ExportSize, Slide } from "./types";
 
@@ -25,18 +28,30 @@ export interface RenderChrome {
   total: number;
 }
 
+/** Images decoded ahead of time — the 2D canvas cannot await. */
+export interface RenderAssets {
+  background?: HTMLImageElement | null;
+  detail?: HTMLImageElement | null;
+}
+
 export interface RenderOptions {
   slide: Slide;
   style: SlideStyle;
   size: ExportSize;
   scale: number;
   chrome: RenderChrome;
+  assets?: RenderAssets;
 }
 
 type Ctx = CanvasRenderingContext2D & { letterSpacing?: string };
 
 function setLetterSpacing(ctx: Ctx, em: number, fontSize: number) {
   if ("letterSpacing" in ctx) ctx.letterSpacing = `${(em * fontSize).toFixed(2)}px`;
+}
+
+function rgba(hex: string, alpha: number) {
+  const rgb = hexToRgb(hex) ?? [0, 0, 0];
+  return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
 }
 
 /** Greedy word wrap using the context's current font. */
@@ -111,9 +126,17 @@ function lineWidth(line: RichWord[], spaceWidth: number) {
   return line.reduce((n, w, i) => n + w.width + (i ? spaceWidth : 0), 0);
 }
 
+/** Cover-fit an image into a box. */
+function drawCover(ctx: Ctx, img: HTMLImageElement, x: number, y: number, w: number, h: number) {
+  const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+  const dw = img.naturalWidth * s;
+  const dh = img.naturalHeight * s;
+  ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+}
+
 /** Paint one slide at Instagram resolution × `scale` onto a fresh canvas. */
 export function renderSlide(opts: RenderOptions): HTMLCanvasElement {
-  const { slide, style, size, scale, chrome } = opts;
+  const { slide, style, size, scale, chrome, assets = {} } = opts;
   const { w, h } = SLIDE_SIZES[size];
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(w * scale);
@@ -123,6 +146,19 @@ export function renderSlide(opts: RenderOptions): HTMLCanvasElement {
 
   ctx.fillStyle = style.bg;
   ctx.fillRect(0, 0, w, h);
+
+  /* Background photo with the readability overlay. */
+  if (assets.background && assets.background.naturalWidth > 0) {
+    drawCover(ctx, assets.background, 0, 0, w, h);
+    const overlay = slide.imageOverlay ?? IMAGE_OVERLAY.default;
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, rgba(style.bg, overlay * 0.55));
+    grad.addColorStop(0.55, rgba(style.bg, overlay));
+    grad.addColorStop(1, rgba(style.bg, Math.min(1, overlay + 0.1)));
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+  }
+
   ctx.fillStyle = style.fg;
   ctx.textBaseline = "top";
 
@@ -143,11 +179,12 @@ export function renderSlide(opts: RenderOptions): HTMLCanvasElement {
     ctx.globalAlpha = 1;
   }
 
-  /* Measure the headline + body + bullets block. */
+  /* Measure the headline + rule + body + bullets + detail block. */
   const hs = headlineSize(slide.type, slide.headline);
   const { lines: headLines, spaceWidth } = wrapRich(ctx, slide.headline, style, hs, innerWidth);
   const headLine = hs * HEADLINE.lineHeight;
   const headHeight = headLines.length * headLine;
+  const ruleHeight = RULE.gapAbove + RULE.height;
 
   const hasBody = slide.body.trim().length > 0;
   ctx.font = `400 ${BODY.size}px ${family}`;
@@ -174,7 +211,24 @@ export function renderSlide(opts: RenderOptions): HTMLCanvasElement {
     ? BULLET.gapAbove + measured.reduce((n, m) => n + m.height, 0) + (measured.length - 1) * BULLET.gapBetween
     : 0;
 
-  const blockHeight = headHeight + (hasBody ? BODY.gapAbove + bodyHeight : 0) + bulletsHeight;
+  const detail = slide.detail ?? null;
+  let detailHeight = 0;
+  let statLabelLines: string[] = [];
+  if (detail?.kind === "icon") detailHeight = DETAIL.gapAbove + DETAIL.icon;
+  if (detail?.kind === "image" && assets.detail && assets.detail.naturalWidth > 0) {
+    const s = Math.min(DETAIL.imageMax / assets.detail.naturalHeight, innerWidth / assets.detail.naturalWidth, 1);
+    detailHeight = DETAIL.gapAbove + assets.detail.naturalHeight * s;
+  }
+  if (detail?.kind === "stat") {
+    ctx.font = `400 ${DETAIL.statLabel}px ${family}`;
+    setLetterSpacing(ctx, 0, DETAIL.statLabel);
+    statLabelLines = wrapLines(ctx, detail.label, 520);
+    const textH = DETAIL.statValue + DETAIL.statGap + statLabelLines.length * DETAIL.statLabel * 1.3;
+    detailHeight = DETAIL.gapAbove + Math.max(textH, detail.bars ? DETAIL.barMaxH : 0);
+  }
+
+  const blockHeight =
+    headHeight + ruleHeight + (hasBody ? BODY.gapAbove + bodyHeight : 0) + bulletsHeight + detailHeight;
   const box = contentBox(size, style.header);
   let y =
     style.justify === "flex-start"
@@ -203,24 +257,31 @@ export function renderSlide(opts: RenderOptions): HTMLCanvasElement {
       ctx.fillRect(x - spaceWidth + hs * ACCENT_SQUARE.gap, ly + hs * 0.78 - sq, sq, sq);
     }
   });
+
+  /* Rule under the headline. */
+  const ruleX = style.align === "center" ? (w - RULE.width) / 2 : style.align === "right" ? w - PAD - RULE.width : PAD;
+  ctx.fillStyle = style.accent;
+  ctx.fillRect(ruleX, y + headHeight + RULE.gapAbove, RULE.width, RULE.height);
   ctx.fillStyle = style.fg;
 
   const alignX = style.align === "center" ? w / 2 : style.align === "right" ? w - PAD : PAD;
+  let cursor = y + headHeight + ruleHeight;
 
   if (hasBody) {
     ctx.font = `400 ${BODY.size}px ${family}`;
     setLetterSpacing(ctx, 0, BODY.size);
     ctx.textAlign = style.align;
     ctx.globalAlpha = BODY.opacity;
-    const by = y + headHeight + BODY.gapAbove;
+    const by = cursor + BODY.gapAbove;
     bodyLines.forEach((line, i) => {
       ctx.fillText(line, alignX, by + i * bodyLine + (bodyLine - BODY.size) / 2);
     });
     ctx.globalAlpha = 1;
+    cursor = by + bodyHeight;
   }
 
   if (measured.length) {
-    let by = y + headHeight + (hasBody ? BODY.gapAbove + bodyHeight : 0) + BULLET.gapAbove;
+    let by = cursor + BULLET.gapAbove;
     const tx = PAD + BULLET.marker + BULLET.markerGap;
     ctx.textAlign = "left";
     measured.forEach((m) => {
@@ -247,6 +308,66 @@ export function renderSlide(opts: RenderOptions): HTMLCanvasElement {
       }
       by += m.height + BULLET.gapBetween;
     });
+    cursor += bulletsHeight;
+  }
+
+  /* Detail — icon, picture or stat graphic. */
+  if (detail && detailHeight > 0) {
+    const dy = cursor + DETAIL.gapAbove;
+    const contentH = detailHeight - DETAIL.gapAbove;
+    if (detail.kind === "icon" && assets.detail && assets.detail.naturalWidth > 0) {
+      const dx = style.align === "center" ? (w - DETAIL.icon) / 2 : style.align === "right" ? w - PAD - DETAIL.icon : PAD;
+      ctx.drawImage(assets.detail, dx, dy, DETAIL.icon, DETAIL.icon);
+    } else if (detail.kind === "image" && assets.detail && assets.detail.naturalWidth > 0) {
+      const s = Math.min(DETAIL.imageMax / assets.detail.naturalHeight, innerWidth / assets.detail.naturalWidth, 1);
+      const dw = assets.detail.naturalWidth * s;
+      const dh = assets.detail.naturalHeight * s;
+      const dx = style.align === "center" ? (w - dw) / 2 : style.align === "right" ? w - PAD - dw : PAD;
+      ctx.drawImage(assets.detail, dx, dy, dw, dh);
+    } else if (detail.kind === "stat") {
+      ctx.font = `700 ${DETAIL.statValue}px ${family}`;
+      setLetterSpacing(ctx, -0.03, DETAIL.statValue);
+      const valueW = ctx.measureText(detail.value).width;
+      ctx.font = `400 ${DETAIL.statLabel}px ${family}`;
+      setLetterSpacing(ctx, 0, DETAIL.statLabel);
+      const labelW = Math.max(...statLabelLines.map((l) => ctx.measureText(l).width), 0);
+      const textW = Math.max(valueW, labelW);
+      const barsW = detail.bars ? detail.bars.length * DETAIL.barW + (detail.bars.length - 1) * DETAIL.barGap : 0;
+      const totalW = textW + (detail.bars ? DETAIL.barGapText + barsW : 0);
+      const startX = style.align === "center" ? (w - totalW) / 2 : style.align === "right" ? w - PAD - totalW : PAD;
+      const textH = DETAIL.statValue + DETAIL.statGap + statLabelLines.length * DETAIL.statLabel * 1.3;
+      const textTop = dy + contentH - textH;
+
+      ctx.textAlign = "left";
+      ctx.fillStyle = style.accent;
+      ctx.font = `700 ${DETAIL.statValue}px ${family}`;
+      setLetterSpacing(ctx, -0.03, DETAIL.statValue);
+      ctx.fillText(detail.value, startX, textTop + DETAIL.statValue * 0.06);
+      ctx.fillStyle = style.fg;
+      ctx.globalAlpha = BODY.opacity;
+      ctx.font = `400 ${DETAIL.statLabel}px ${family}`;
+      setLetterSpacing(ctx, 0, DETAIL.statLabel);
+      statLabelLines.forEach((line, i) => {
+        ctx.fillText(line, startX, textTop + DETAIL.statValue + DETAIL.statGap + i * DETAIL.statLabel * 1.3 + DETAIL.statLabel * 0.15);
+      });
+      ctx.globalAlpha = 1;
+
+      if (detail.bars) {
+        const max = Math.max(...detail.bars);
+        let bx = startX + textW + DETAIL.barGapText;
+        const baseY = dy + contentH;
+        detail.bars.forEach((v, i) => {
+          const bh = Math.max(12, (v / max) * DETAIL.barMaxH);
+          const last = i === detail.bars!.length - 1;
+          ctx.fillStyle = last ? style.accent : style.fg;
+          ctx.globalAlpha = last ? 1 : 0.25;
+          roundRect(ctx, bx, baseY - bh, DETAIL.barW, bh, 4);
+          ctx.fill();
+          bx += DETAIL.barW + DETAIL.barGap;
+        });
+        ctx.globalAlpha = 1;
+      }
+    }
   }
 
   /* Footer — swipe hint or handle on the left, progress dots on the right. */
@@ -374,12 +495,17 @@ function drawArrow(ctx: Ctx, x: number, cy: number, size: number, color: string)
 }
 
 function roundRect(ctx: Ctx, x: number, y: number, w: number, h: number, r: number) {
+  const rr = Math.min(r, h / 2, w / 2);
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.arc(x + w - r, y + r, r, -Math.PI / 2, Math.PI / 2);
-  ctx.lineTo(x + r, y + h);
-  ctx.arc(x + r, y + r, r, Math.PI / 2, (3 * Math.PI) / 2);
+  ctx.moveTo(x + rr, y);
+  ctx.lineTo(x + w - rr, y);
+  ctx.arc(x + w - rr, y + rr, rr, -Math.PI / 2, 0);
+  ctx.lineTo(x + w, y + h - rr);
+  ctx.arc(x + w - rr, y + h - rr, rr, 0, Math.PI / 2);
+  ctx.lineTo(x + rr, y + h);
+  ctx.arc(x + rr, y + h - rr, rr, Math.PI / 2, Math.PI);
+  ctx.lineTo(x, y + rr);
+  ctx.arc(x + rr, y + rr, rr, Math.PI, (3 * Math.PI) / 2);
   ctx.closePath();
 }
 
@@ -401,7 +527,7 @@ export function loadImage(src: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Logo could not be loaded"));
+    img.onerror = () => reject(new Error("Image could not be loaded"));
     img.src = src;
   });
 }

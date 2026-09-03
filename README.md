@@ -31,6 +31,14 @@ on-screen canvas (`components/slide-canvas.tsx`) and the export renderer
 (`lib/render-slide.ts`) share `lib/slide-layout.ts`, so exports match the
 editor pixel for pixel.
 
+Under the headline sits a short accent rule. Below the body, an optional
+**detail visual**: an icon the app finds for the copy (keyword-matched
+against the Lucide library, `lib/details.ts`), a **stat graphic** it builds
+from the strongest figure in the text (big number, label, two-bar
+comparison), or an uploaded picture. A slide can also carry a **background
+photo**; it sits behind a dark-to-darker overlay whose strength is a slider,
+so the text keeps its layout and stays readable.
+
 ## What is real
 
 - **Export** renders every slide with the Canvas 2D API from the same layout

@@ -32,6 +32,15 @@ export interface Bullet {
   text: string;
 }
 
+/**
+ * A small visual under the text: an icon found for the copy, a stat graphic
+ * generated from the numbers in it, or an uploaded picture.
+ */
+export type Detail =
+  | { kind: "icon"; name: string }
+  | { kind: "stat"; value: string; label: string; bars?: [number, number] }
+  | { kind: "image"; src: string };
+
 export interface Slide {
   id: string;
   type: SlideType;
@@ -40,6 +49,11 @@ export interface Slide {
   body: string;
   /** Only rendered on `list` slides. */
   bullets?: Bullet[];
+  /** Full-bleed photo behind the text (data URL), with a readability overlay. */
+  image?: string | null;
+  /** Overlay strength 0–1; higher keeps text readable over busy photos. */
+  imageOverlay?: number;
+  detail?: Detail | null;
 }
 
 export type DocStatus = "Draft" | "Scheduled" | "Published";

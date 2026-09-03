@@ -2,6 +2,7 @@ import { newId } from "./id";
 import type {
   BrandKit,
   Bullet,
+  Detail,
   Doc,
   DocStatus,
   Faq,
@@ -170,7 +171,7 @@ export const DEFAULT_PRESETS: Preset[] = [
 
 /* ------------------------------------------------------------ seed docs */
 
-type RawSlide = [SlideType, string, string, Bullet[]?];
+type RawSlide = [SlideType, string, string, Bullet[]?, Detail?];
 
 export const SEED_SLIDES: RawSlide[] = [
   ["hook", "Post one carousel a *day*. Not three a week.", "The math nobody tells you about consistency."],
@@ -188,7 +189,7 @@ export const SEED_SLIDES: RawSlide[] = [
     ],
   ],
   ["point", "Day 61–90: saves beat likes.", "Write for the person who screenshots. That’s who the algorithm trusts."],
-  ["point", "800 → 41k in 90 days.", "Not viral. Just 90 posts in a row."],
+  ["point", "800 → 41k in 90 days.", "Not viral. Just 90 posts in a row.", undefined, { kind: "stat", value: "41k", label: "followers after 90 posts in a row", bars: [0.02, 1] }],
   ["cta", "Save this. Then post *today*.", "Follow @marisol.writes for one carousel system a week."],
 ];
 
@@ -221,8 +222,8 @@ const RAW_DOCS: RawDoc[] = [
           { title: "Full means frozen", text: "No new mail, no more uploads." },
         ],
       ],
-      ["point", "Videos are the *real* problem.", "Not the photos. One holiday clip weighs more than a year of stills."],
-      ["point", "Old mail attachments come second.", "Ten years of PDFs and screenshots nobody will open again."],
+      ["point", "Videos are the *real* problem.", "Not the photos. One holiday clip weighs more than a year of stills.", undefined, { kind: "icon", name: "Clapperboard" }],
+      ["point", "Old mail attachments come second.", "Ten years of PDFs and screenshots nobody will open again.", undefined, { kind: "icon", name: "Mail" }],
       ["point", "Clean up in the storage manager, not the gallery.", "It sorts by size and shows what actually takes the space."],
       ["cta", "Save this before you delete *anything*.", "Follow @marisol.writes for one practical tip a week."],
     ],
@@ -425,12 +426,13 @@ const RAW_DOCS: RawDoc[] = [
 ];
 
 function slidesFrom(raw: RawSlide[]): Slide[] {
-  return raw.map(([type, headline, body, bullets]) => ({
+  return raw.map(([type, headline, body, bullets, detail]) => ({
     id: newId("s"),
     type,
     headline,
     body,
     ...(bullets ? { bullets } : {}),
+    ...(detail ? { detail } : {}),
   }));
 }
 

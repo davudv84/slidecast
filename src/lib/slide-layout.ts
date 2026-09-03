@@ -29,7 +29,28 @@ export const HEADLINE = { lineHeight: 1.06, letterSpacing: -0.03 };
 /** The small accent square that closes a headline. */
 export const ACCENT_SQUARE = { size: 0.26, gap: 0.18 };
 
-export const BODY = { size: 40, lineHeight: 1.4, opacity: 0.72, gapAbove: 32 };
+export const BODY = { size: 40, lineHeight: 1.4, opacity: 0.72, gapAbove: 28 };
+
+/** Short accent rule under every headline. */
+export const RULE = { width: 140, height: 8, gapAbove: 30 };
+
+/** The detail visual under the body: icon, stat graphic or picture. */
+export const DETAIL = {
+  gapAbove: 56,
+  icon: 200,
+  iconStroke: 1.5,
+  statValue: 128,
+  statLabel: 34,
+  statGap: 10,
+  barW: 88,
+  barGap: 22,
+  barMaxH: 160,
+  barGapText: 48,
+  imageMax: 320,
+};
+
+/** Photo overlay: how dark the slide colour sits over a background image. */
+export const IMAGE_OVERLAY = { min: 0.25, max: 0.95, default: 0.7 };
 
 /** List slides: accent square, bold title, muted explanation. */
 export const BULLET = {

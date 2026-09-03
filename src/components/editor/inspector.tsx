@@ -12,6 +12,7 @@ import { Segmented } from "../ui/segmented";
 import { Switch } from "../ui/misc";
 import { LogoUploader } from "../logo-uploader";
 import { BrandColors } from "../brand-colors";
+import { BackgroundEditor, DetailEditor } from "./detail-editor";
 import type { Align, Bullet, FontPair, Scheme, SlideType } from "@/lib/types";
 
 const SLIDE_TYPES: { value: SlideType; label: string }[] = [
@@ -115,6 +116,9 @@ export function ContentTab() {
       </Field>
 
       {slide.type === "list" ? <BulletsEditor key={`l${slide.id}`} /> : null}
+
+      <DetailEditor key={`d${slide.id}`} />
+      <BackgroundEditor key={`bg${slide.id}`} />
 
       <div className="flex gap-2">
         <Button variant="secondary" size="sm" className="h-[34px] flex-1" onClick={() => app.duplicateSlide(app.active)}>

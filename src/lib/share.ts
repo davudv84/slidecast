@@ -1,6 +1,6 @@
 import { newId } from "./id";
 import { migrateDoc } from "./data";
-import type { Align, BrandKit, Bullet, Doc, FontPair, Scheme, SlideType } from "./types";
+import type { Align, BrandKit, Bullet, Detail, Doc, FontPair, Scheme, SlideType } from "./types";
 
 /**
  * Share links carry the whole carousel in the URL fragment, so a viewer needs
@@ -21,6 +21,8 @@ interface SharePayload {
   hd?: boolean;
   sw?: string;
   n?: string;
+  /** v2: per-slide detail (icon or stat), aligned with `s`. */
+  d?: (Detail | null)[];
 }
 
 function toBase64Url(text: string) {
@@ -42,9 +44,11 @@ export function encodeShare(doc: Doc, brand: BrandKit, name: string) {
   const payload: SharePayload = {
     v: 2,
     t: doc.title,
+    // Photos and uploaded details stay out of links (they would be megabytes).
     s: doc.slides.map((s) =>
       s.bullets?.length ? [s.type, s.headline, s.body, s.bullets] : [s.type, s.headline, s.body],
     ),
+    d: doc.slides.map((s) => (s.detail && s.detail.kind !== "image" ? s.detail : null)),
     tpl: doc.templateId,
     f: doc.fontPair,
     al: doc.align,
@@ -77,12 +81,13 @@ export function decodeShare(hash: string): SharedCarousel | null {
       doc: migrateDoc({
         id: newId("shared"),
         title: p.t,
-        slides: p.s.map(([type, headline, body, bullets]) => ({
+        slides: p.s.map(([type, headline, body, bullets], i) => ({
           id: newId("s"),
           type,
           headline,
           body,
           ...(bullets ? { bullets } : {}),
+          ...(p.d?.[i] ? { detail: p.d[i] } : {}),
         })),
         templateId: p.tpl,
         scheme: p.sc ?? null,
